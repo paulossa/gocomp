@@ -1,6 +1,4 @@
-package flex;
 import java_cup.runtime.*;
-import cup.sym;
 /*
 
     OBSERVAÇÕES:
@@ -27,8 +25,6 @@ import cup.sym;
 %class Lexer
 %standalone
 %cup
-%cupdebug
-%debug
 
 %unicode
 
@@ -83,7 +79,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "import"                                                    { System.out.println("Found keyword: " + yytext()); }
     "return"                                                    { System.out.println("Found keyword: " + yytext()); }
     "var"                                                       { System.out.println("Found keyword: " + yytext()); }
-    
+
     /*OPERATORS AND PUNCTUATION*/
 
 
@@ -138,6 +134,8 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     /*TOKENS*/
 
     "/*"[^*/]*"*/"{line_terminator}?                            { System.out.println("Found traditional comment: " + yytext()); yyline++; yybegin(0);}
+    {comment}                                                   { System.out.println("OSHE"); }
+    {letter}                                                    { System.out.println("Letter been found"); }
     "//"[^\n]*{line_terminator}?                                { System.out.println("Found inline comment:" + yytext().substring(2));}
     {decimal_literal}                                           { System.out.println("Found decimal literal:" + yytext());}
     {float_literal}                                             { System.out.println("Found float literal:" + yytext());}
