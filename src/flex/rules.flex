@@ -133,7 +133,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "="                                                         { System.out.println("Found operator/punctuation: " + yytext()); }
     ":="                                                        { System.out.println("Found operator/punctuation: " + yytext()); }
     ","                                                         { System.out.println("Found operator/punctuation: " + yytext()); }
-    ";"                                                         { System.out.println("Found operator/punctuation: " + yytext()); }
+    ";"                                                         { System.out.println("Found operator/punctuation: " + yytext()); return symbol(sym.SEMICOLON); }
     "%"                                                         { System.out.println("Found operator/punctuation: " + yytext()); }
     ">>"                                                        { System.out.println("Found operator/punctuation: " + yytext()); }
     "%="                                                        { System.out.println("Found operator/punctuation: " + yytext()); }
@@ -152,12 +152,16 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     {comment}                                                   { System.out.println("OSHE"); }
     {letter}                                                    { System.out.println("Letter been found"); }
     "//"[^\n]*{line_terminator}?                                { System.out.println("Found inline comment:" + yytext().substring(2));}
-    {decimal_literal}                                           { System.out.println("Found decimal literal:" + yytext());}
+    {decimal_literal}                                           { System.out.println("Found decimal literal:" + yytext());  return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
     {float_literal}                                             { System.out.println("Found float literal:" + yytext());}
     {hex_literal}                                               { System.out.println("Found hex literal:" + yytext());}
     {white_space}                                               { /* Ignore */}
-    {identifier}                                                { System.out.println("Found identifier: " + yytext()); }
-    {string_literal}                                            { System.out.println("Found string literal: " + yytext()); }
+    {identifier}                                                { System.out.println("Found identifier: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
+    {string_literal}                                            { System.out.println("Found string literal: " + yytext()); return symbol(sym.STRING_LITERAL, yytext()); }
     {imaginary_literal}                                         { System.out.println("Found imaginary literal: " + yytext()); }
     {octal_literal}                                             { System.out.println("Found octal literal: " + yytext()); }
 }
+
+[^]|\n                             { throw new RuntimeException("Erro léxico caractere ilegal: \""+yytext()+
+                                                              "\" na linha "+yyline+", coluna "+yycolumn); }
+<<EOF>>                          { return symbol(sym.EOF); }

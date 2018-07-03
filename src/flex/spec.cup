@@ -79,6 +79,10 @@ parser code {:
     }
 :};
 
+init with {:
+  StringBuilder res_code = new StringBuilder();
+:};
+
 
 
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
@@ -168,15 +172,18 @@ non terminal param, params, params_opt;
 non terminal arg, args, args_opt;
 non terminal declaration;
 non terminal const_decl, type_decl, var_decl, method_decl;
+non terminal block;
+non terminal EOF;
 
 
   start with goal;
-  goal ::= compilation_unit;
+  goal ::= compilation_unit:c {: RESULT = c; :};
 
   compilation_unit ::=
   		package_declaration_opt
   		import_declarations_opt
       top_level_decl
+      {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :}
   		;
 
   package_declaration_opt ::= package_declaration | ;
@@ -195,17 +202,20 @@ non terminal const_decl, type_decl, var_decl, method_decl;
   	;
 
   func_declarations_opt ::=
-    FUNC IDENTIFIER LPAREN params_opt RPAREN func_body;
+    FUNC IDENTIFIER LPAREN args_opt RPAREN func_body;
 
-  func_body ::=
-    LBRACE Statements_opt RBRACE;
+  func_body ::= block;
+  block ::= LBRACE Statements_opt RBRACE;
   Statements_opt ::=  | Statements;
-  Statements ::= Statement | Statements Statement;
-  Statement ::= IDENTIFIER LPAREN args_opt RPAREN;
-
-  args_opt ::= | args;
-  args ::= arg | args COMMA arg;
-  arg ::= IDENTIFIER | STRING_LITERAL;
+  Statements ::= Statement
+    | Statements Statement;
+  Statement ::= IDENTIFIER LPAREN args_opt:i RPAREN {: System.out.println(i); :};
+  args_opt ::= {:RESULT = ""; :}
+    | args:a {: RESULT = a; :};
+  args ::= arg:a {: RESULT = a; :}
+    | args COMMA arg;
+  arg ::= IDENTIFIER:i {: RESULT = i; :}
+    | STRING_LITERAL:l {: RESULT = l; :};
   params_opt ::=  | params;
   params ::= param | params COMMA param;
   param ::= IDENTIFIER TYPE;
