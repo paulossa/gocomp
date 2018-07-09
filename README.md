@@ -1,8 +1,16 @@
 # GOCompiler
-Projeto da disciplina de compiladores
 
-Para rodar o analisador Léxico em modo de desenvolvimento basta executar o script runLex.sh
+#### Estrutura
 
-Para rodar no macOS basta (talvez seja necessário acesso root):
+- eclipseWorkspace
+  - GoTranslator (projeto com nossos artefatos)
+  - CompilersProject (referência bibliográfica)
+- prepare.bat (Comandos para compilar o .cup e .flex para suas classes respectivas... Melhor executar em lotes pois o .cup.class é usado pelo .flex.class )
 
-`sh runLex.sh`
+
+### TODO
+- [ ] Instalar Eclipse https://www.eclipse.org/downloads/
+- [ ] Checar [referência bibliográfica](./eclipseWorkspace/CompilersProject).  
+- [ ] **Terminar de especificar as regras da gramática no arquivo .CUP.**
+- [ ] Checar gerador de código (ou construir um mais simples).
+- [ ] Adicionar checadores de tipo (Checagem Semântica).
