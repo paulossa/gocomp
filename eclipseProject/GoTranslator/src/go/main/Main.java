@@ -3,9 +3,8 @@ package go.main;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-import com.ccompiler.analysis.Syntatic;
-
 import java_cup.runtime.Symbol;
+import go.core.*;
 
 public class Main {
 	private static final int MIN_INPUT_FILES = 1;
@@ -22,7 +21,7 @@ public class Main {
 		try {
 			System.out.println("Traduzindo  - " + filePath + " - ");
 			Lexical sc = new Lexical(new BufferedReader(new FileReader(filePath)));
-			Syntatic parser = new Syntatic(scanner);
+			Syntatic parser = new Syntatic(sc);
 			Symbol s = parser.parse();
 			
 		} catch (Exception e) {
