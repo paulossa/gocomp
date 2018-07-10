@@ -121,9 +121,10 @@ terminal RETURN;
 terminal VAR;
 
 /* language terminals  */
-terminal BOOLEAN; // primitive_type
-terminal BYTE, SHORT, INT, LONG, CHAR; // integral_type
-terminal FLOAT, DOUBLE; // floating_point_type
+terminal BOOL; // primitive_type
+terminal COMPLEX64, COMPLEX128; // complex types
+terminal RUNE, BYTE, SHORT, UINTPTR, UINT8, UINT16, UINT32, UINT64, UINT, INT8, INT16, INT32, INT64, INT, LONG, CHAR; // integral_type
+terminal FLOAT32, FLOAT64; // floating_point_type
 terminal LBRACK, RBRACK; // array_type
 terminal DOT; // qualified_name
 terminal SEMICOLON, MULT, COMMA, LBRACKET, RBRACKET, LBRACE, RBRACE, EQ, LPAREN, RPAREN, COLON;
@@ -189,45 +190,65 @@ non terminal EOF;
 
 
   start with goal;
+  
   goal ::= compilation_unit:c {: RESULT = c; :};
 
   compilation_unit ::=
   		package_declaration_opt
   		import_declarations_opt
-      top_level_decl
-      {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :}
-  		;
+      	top_level_decl
+      {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :};
 
   package_declaration_opt ::= package_declaration | ;
+  
   import_declarations_opt ::= import_declarations | ;
+  
   top_level_decl ::= declaration | func_declarations_opt | method_decl;
+  
   declaration ::=  const_decl;
 
   const_decl ::= CONST IDENTIFIER EQ;
 
   package_declaration ::= PACKAGE package_name;
+  
   package_name ::= IDENTIFIER;
 
   import_declarations ::=
   		import_declaration
-  	|	import_declarations import_declaration
-  	;
+  	|	import_declarations import_declaration;
+  	
+  import_declaration ::= IMPORT STRING_LITERAL;
 
   func_declarations_opt ::=
     FUNC IDENTIFIER LPAREN args_opt RPAREN func_body;
 
   func_body ::= block;
+  
   block ::= LBRACE Statements_opt RBRACE;
+  
   Statements_opt ::=  | Statements;
+  
   Statements ::= Statement
     | Statements Statement;
+    
   Statement ::= IDENTIFIER LPAREN args_opt:i RPAREN {: System.out.println(i); :};
+  
   args_opt ::= {:RESULT = ""; :}
     | args:a {: RESULT = a; :};
+    
+    
   args ::= arg:a {: RESULT = a; :}
     | args COMMA arg;
+    
+    
   arg ::= IDENTIFIER:i {: RESULT = i; :}
     | STRING_LITERAL:l {: RESULT = l; :};
+    
+    
   params_opt ::=  | params;
+  
+  
   params ::= param | params COMMA param;
+  
+  
   param ::= IDENTIFIER TYPE;
