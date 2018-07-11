@@ -10,10 +10,11 @@ public class Main {
 	private static final int MIN_INPUT_FILES = 1;
 
 	public static void main(String[] args) {
+		startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go");
 		if (args.length < MIN_INPUT_FILES) {
 			printHowTo();
 		} else {
-			for (String filePath : args) { startCompilationFor(filePath); }
+			for (String filePath : args) { startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go"); }
 		}
 	}
 
@@ -21,7 +22,7 @@ public class Main {
 		try {
 			System.out.println("Traduzindo  - " + filePath + " - ");
 			Lexical sc = new Lexical(new BufferedReader(new FileReader(filePath)));
-			Syntatic parser = new Syntatic(sc);
+			Syntactic parser = new Syntactic(sc);
 			Symbol s = parser.parse();
 			
 		} catch (Exception e) {
