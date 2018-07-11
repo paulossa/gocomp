@@ -164,10 +164,22 @@ terminal java.lang.String IDENTIFIER; // name
 
 // 19.2) The Syntactic Grammar
 non terminal goal;
+  
+non terminal qualified_identifier;
+non terminal operand, operandName;
+non terminal expression, unary_expression, primary_expression, expressions_opt, return_opt;
+non terminal index, slice, type_assertion, expression_list, conversion;
+
 // 19.3) Lexical Structure
 non terminal literal;
+non terminal operator, unary_operator;
+non terminal binary_operator;
+non terminal relational_operator;
+non terminal add_operator;
+non terminal mult_operator;
+
 // 19.4) Types, Values, and Variables
-non terminal type, primitive_type, numeric_type;
+non terminal type, type_opt, primitive_type, numeric_type;
 non terminal integral_type, floating_point_type;
 non terminal reference_type;
 non terminal class_or_interface_type;
@@ -181,12 +193,22 @@ non terminal import_declarations_opt, import_declarations, import_declaration;
 non terminal func_declarations_opt, func_body;
 non terminal Statements_opt, Statements, Statement;
 non terminal top_level_decl;
-non terminal param, params, params_opt;
+non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
 non terminal arg, args, args_opt;
 non terminal declaration;
 non terminal const_decl, type_decl, var_decl, method_decl;
 non terminal block;
 non terminal EOF;
+
+
+/* precedência de operadores, os de baixo tem maior precedência */
+
+precedence left PIPEPIPE;
+precedence left ANDAND;
+precedence left EQEQ, NOTEQ, LT, GT, LTEQ, GTEQ;
+precedence left PIPE, PLUS, MINUS, CIRCU;
+precedence left MULT, DIV, MOD, LSHIFT, RSHIFT, AND, ANDNOT;
+precedence left NOT, ARRLEFT;
 
 
   start with goal;
@@ -219,12 +241,13 @@ non terminal EOF;
   	
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declarations_opt ::=
-    FUNC IDENTIFIER LPAREN args_opt RPAREN func_body;
+  func_declarations_opt ::= | func_declarations_opt FUNC IDENTIFIER LPAREN params_opt RPAREN type_opt func_body;
 
   func_body ::= block;
   
-  block ::= LBRACE Statements_opt RBRACE;
+  block ::= LBRACE Statements_opt return_opt RBRACE;
+  
+  return_opt ::= | RETURN expression;
   
   Statements_opt ::=  | Statements;
   
@@ -235,7 +258,7 @@ non terminal EOF;
   
   args_opt ::= {:RESULT = ""; :}
     | args:a {: RESULT = a; :};
-    
+  
     
   args ::= arg:a {: RESULT = a; :}
     | args COMMA arg;
@@ -245,10 +268,91 @@ non terminal EOF;
     | STRING_LITERAL:l {: RESULT = l; :};
     
     
-  params_opt ::=  | params;
+  // Em go os tipos dos parametros devem ser explicitados em declarações de funcao, porem caso
+  // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o 
+  // ultimo parametro com o tipo explicito.
   
+  params_opt ::=  | typed_params | untyped_params COMMA typed_param;
   
-  params ::= param | params COMMA param;
+  untyped_params ::= untyped_param | untyped_params COMMA untyped_param;
   
+  typed_params ::= typed_param | typed_params COMMA typed_param;
+ 
+  untyped_param ::= IDENTIFIER;
   
-  param ::= IDENTIFIER TYPE;
+  // O tipo do parametro pode ser uma classe definida pelo usuario, 
+  //entao qualquer IDENTIFIER é sintaticamente válido como tipo.
+ 
+  typed_param ::= IDENTIFIER type;
+  
+  type_opt ::= | type;
+  
+  type ::= IDENTIFIER | primitive_type | numeric_type; 
+  
+  primitive_type ::= BOOL;
+  
+  numeric_type ::= floating_point_type | integral_type;
+  	
+  floating_point_type ::= FLOAT32 | FLOAT64;
+ 
+  integral_type ::= COMPLEX64 | COMPLEX128 | 
+	RUNE | BYTE | SHORT | UINTPTR | UINT8 | UINT16 | 
+	UINT32 | UINT64 | UINT | INT8 | INT16 | INT32 | 
+	INT64 | INT | LONG | CHAR;
+	
+  literal ::= INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL
+   | HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | STRING_LITERAL;
+  	
+  operator ::= binary_operator | relational_operator | add_operator | mult_operator;
+  
+  binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
+  
+  add_operator ::= PIPE | PLUS | MINUS | CIRCU;
+  
+  relational_operator ::= EQEQ | NOTEQ | LT | GT | LTEQ | GTEQ;
+  
+  unary_operator ::= PLUS | MINUS | NOT | CIRCU | MULT | AND | ARRLEFT;
+  
+  mult_operator ::= MULT | DIV | MOD | LSHIFT | RSHIFT | AND | ANDNOT;
+  
+  qualified_identifier ::= IDENTIFIER DOT IDENTIFIER; //Ex: packageName.identifier
+   
+  expression ::= unary_expression | expression binary_operator expression;
+  
+  unary_expression ::= primary_expression | unary_operator unary_expression;
+  
+  primary_expression ::= 
+  
+  	/* Operand Rule begins */
+  	/* Reduced manually due to shift reduce conflicts */
+  	
+	  	literal |
+	    IDENTIFIER | qualified_identifier //operand name
+	    LPAREN expression RPAREN  |
+	    
+    /* Operand Rule ends */
+	//TODO: Consertar shift-reduce com essa regra
+	//conversion |
+
+    primary_expression qualified_identifier | primary_expression index | 
+  	primary_expression slice | 
+  	
+  	/* Type Conversion begin */
+  	//TODO: Consertar shift-reduce com essa regra
+  	
+  	//primary_expression DOT LPAREN type RPAREN | 
+  	
+  	/* Type Conversion begin */
+  	
+  	primary_expression LPAREN args RPAREN;
+  		
+ 
+  index ::= LBRACK expression RBRACK;
+
+  slice ::= LBRACK expression COLON expression RBRACK | 
+  	LBRACK expression COLON expression COLON expression RBRACK;
+
+  expression_list ::= expression | expression_list COMMA expression;
+  
+  conversion ::= type LPAREN expression RPAREN;
+   

@@ -32,7 +32,8 @@ import java_cup.runtime.*;
 %line
 %column
 
-identifier =  [:jletter:] [:jletterdigit:]*
+letters = [a-zA-Z_]
+digits =  [a-zA-Z_0-9]
 line_terminator = \r|\n|\r\n|\u000A
 white_space = {line_terminator} | [ \t\f]
 comment = ("/*"[^*]"*/") | ("//"[^*]new_line)
@@ -77,7 +78,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
 	"complex64"													{ return symbol(sym.COMPLEX64);                                         	}	
 	"complex128"												{ return symbol(sym.COMPLEX128);                                         	}
 	"bool"														{ return symbol(sym.BOOL);                                         	}
-	"int"														{ return symbol(sym.INT);                                         	}
+	"int"														{ System.out.println("found int"); return symbol(sym.INT);                                         	}
 	"int8"														{ return symbol(sym.INT8);                                        	}
 	"int16"														{ return symbol(sym.INT16);                                       	}
 	"int32"														{ return symbol(sym.INT32);                                       	}
@@ -126,8 +127,8 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "+"                                                         { System.out.print("\t" + yytext()); return symbol(sym.PLUS);       }
     "&"                                                         { System.out.print("\t" + yytext()); return symbol(sym.AND);        }
     "+= "                                                       { System.out.print("\t" + yytext()); return symbol(sym.PLUSEQ);     }
-    "&="                                                        { System.out.print("\t" + yytext()); return symbol(sym.PLUSEQ);     }
-    "&&"                                                        { System.out.print("\t" + yytext()); return symbol(sym.ANDEQ);      }
+    "&="                                                        { System.out.print("\t" + yytext()); return symbol(sym.ANDEQ);     }
+    "&&"                                                        { System.out.print("\t" + yytext()); return symbol(sym.ANDAND);      }
     "=="                                                        { System.out.print("\t" + yytext()); return symbol(sym.EQEQ);       }
     "!="                                                        { System.out.print("\t" + yytext()); return symbol(sym.NOTEQ);      }
     "("                                                         { System.out.print("\t" + yytext()); return symbol(sym.LPAREN);     }
@@ -157,7 +158,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "++"                                                        { System.out.print("\t" + yytext()); return symbol(sym.PLUSPLUS);   }
     "="                                                         { System.out.print("\t" + yytext()); return symbol(sym.EQ);         }
     ":="                                                        { System.out.print("\t" + yytext()); return symbol(sym.DIVEQ);      }
-    ","                                                         { System.out.print("\t" + yytext()); return symbol(sym.INFUNCEQ);   }
+    ","                                                         { System.out.print("\t" + yytext()); return symbol(sym.COMMA);   }
     ";"                                                         { System.out.print("\t" + yytext()); return symbol(sym.SEMICOLON);  }
     "%"                                                         { System.out.print("\t" + yytext()); return symbol(sym.MOD);        }
     ">>"                                                        { System.out.print("\t" + yytext()); return symbol(sym.RSHIFT);     }
@@ -175,13 +176,12 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
 
     "/*"[^*/]*"*/"{line_terminator}?                            { System.out.print("Found traditional comment: " + yytext()); yyline++; yybegin(0);}
     {comment}                                                   { /* ignore */ }
-    {letter}                                                    { /* ignore */ }
     "//"[^\n]*{line_terminator}?                                { /* ignore */ }
     {decimal_literal}                                           { System.out.print("decimal: " + yytext());  return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
     {float_literal}                                             { System.out.print("float literal:" + yytext()); return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
     {hex_literal}                                               { System.out.print("hex literal:" + yytext()); return symbol(sym.HEX_LITERAL, yytext());}
     {white_space}                                               { /* Ignore */}
-    {identifier}                                                { System.out.print("\tidentifier: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
+    {letters}{digits}*	                                        { System.out.print("found id: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
     {string_literal}                                            { System.out.print("\tstring: " + yytext()); return symbol(sym.STRING_LITERAL, yytext()); }
     {imaginary_literal}                                         { System.out.print("\tImaginary: " + yytext()); return symbol(sym.IMAGINARY_LITERAL, yytext()); }
     {octal_literal}                                             { System.out.print("\toctal: " + yytext()); return symbol(sym.OCTAL_LITERAL, yytext()); }
