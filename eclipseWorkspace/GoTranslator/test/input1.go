@@ -2,14 +2,20 @@ package main
 
 import "fmt"
 
-func plus(a int, b int) int {
-    return da.go
+func plus(j int, b int) int {
+
+    return a + b
 }
 
 func plusPlus(a, b, c int) int {
-    return x.go(1)
+    return a + b + c
 }
 
 func main() {
-    return x.go(1)
+
+    // res := plus(1, 2)
+    fmt.Println("1+2 =", res)
+
+    // res = plusPlus(1, 2, 3)
+    fmt.Println("1+2+3 =", res)
 }

@@ -34,6 +34,7 @@ import java_cup.runtime.*;
 
 letters = [a-zA-Z_]
 digits =  [a-zA-Z_0-9]
+identifier = {letters}{digits}*
 line_terminator = \r|\n|\r\n|\u000A
 white_space = {line_terminator} | [ \t\f]
 comment = ("/*"[^*]"*/") | ("//"[^*]new_line)
@@ -124,69 +125,70 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     /*OPERATORS AND PUNCTUATION*/
 
 
-    "+"                                                         { System.out.print("\t" + yytext()); return symbol(sym.PLUS);       }
-    "&"                                                         { System.out.print("\t" + yytext()); return symbol(sym.AND);        }
-    "+= "                                                       { System.out.print("\t" + yytext()); return symbol(sym.PLUSEQ);     }
-    "&="                                                        { System.out.print("\t" + yytext()); return symbol(sym.ANDEQ);     }
-    "&&"                                                        { System.out.print("\t" + yytext()); return symbol(sym.ANDAND);      }
-    "=="                                                        { System.out.print("\t" + yytext()); return symbol(sym.EQEQ);       }
-    "!="                                                        { System.out.print("\t" + yytext()); return symbol(sym.NOTEQ);      }
-    "("                                                         { System.out.print("\t" + yytext()); return symbol(sym.LPAREN);     }
-    ")"                                                         { System.out.print("\t" + yytext()); return symbol(sym.RPAREN);     }
-    "-"                                                         { System.out.print("\t" + yytext()); return symbol(sym.MINUS);      }
-    "|"                                                         { System.out.print("\t" + yytext()); return symbol(sym.PIPE);       }
-    "-="                                                        { System.out.print("\t" + yytext()); return symbol(sym.MINUSEQ);    }
-    "|="                                                        { System.out.print("\t" + yytext()); return symbol(sym.PIPEEQ);     }
-    "||"                                                        { System.out.print("\t" + yytext()); return symbol(sym.PIPEPIPE);   }
-    "<"                                                         { System.out.print("\t" + yytext()); return symbol(sym.LT);         }
-    "<="                                                        { System.out.print("\t" + yytext()); return symbol(sym.LTEQ);       }
-    "["                                                         { System.out.print("\t" + yytext()); return symbol(sym.LBRACK);     }
-    "]"                                                         { System.out.print("\t" + yytext()); return symbol(sym.RBRACK);     }
-    "*"                                                         { System.out.print("\t" + yytext()); return symbol(sym.MULT);       }
-    "^"                                                         { System.out.print("\t" + yytext()); return symbol(sym.CIRCU);      }
-    "*="                                                        { System.out.print("\t" + yytext()); return symbol(sym.MULTEQ);     }
-    "^="                                                        { System.out.print("\t" + yytext()); return symbol(sym.CIRCUEQ);    }
-    "<-"                                                        { System.out.print("\t" + yytext()); return symbol(sym.ARRLEFT);    }
-    ">"                                                         { System.out.print("\t" + yytext()); return symbol(sym.GT);         }
-    ">="                                                        { System.out.print("\t" + yytext()); return symbol(sym.GTEQ);       }
-    "{"                                                         { System.out.print("\t" + yytext()); return symbol(sym.LBRACE);     }
-    "}"                                                         { System.out.print("\t" + yytext()); return symbol(sym.RBRACE);     }
-    "/"                                                         { System.out.print("\t" + yytext()); return symbol(sym.DIV);        }
-    "<<"                                                        { System.out.print("\t" + yytext()); return symbol(sym.LSHIFT);     }
-    "/="                                                        { System.out.print("\t" + yytext()); return symbol(sym.DIVEQ);      }
-    "<<="                                                       { System.out.print("\t" + yytext()); return symbol(sym.LSHIFTEQ);   }
-    "++"                                                        { System.out.print("\t" + yytext()); return symbol(sym.PLUSPLUS);   }
-    "="                                                         { System.out.print("\t" + yytext()); return symbol(sym.EQ);         }
-    ":="                                                        { System.out.print("\t" + yytext()); return symbol(sym.DIVEQ);      }
-    ","                                                         { System.out.print("\t" + yytext()); return symbol(sym.COMMA);   }
-    ";"                                                         { System.out.print("\t" + yytext()); return symbol(sym.SEMICOLON);  }
-    "%"                                                         { System.out.print("\t" + yytext()); return symbol(sym.MOD);        }
-    ">>"                                                        { System.out.print("\t" + yytext()); return symbol(sym.RSHIFT);     }
-    "%="                                                        { System.out.print("\t" + yytext()); return symbol(sym.MODEQ);      }
-    ">>="                                                       { System.out.print("\t" + yytext()); return symbol(sym.RSHIFTEQ);   }
-    "--"                                                        { System.out.print("\t" + yytext()); return symbol(sym.MINUSMINUS); }
-    "!"                                                         { System.out.print("\t" + yytext()); return symbol(sym.NOT);        }
-    "..."                                                       { System.out.print("\t" + yytext()); return symbol(sym.ELLIPSIS);   }
-    "."                                                         { System.out.print("\t" + yytext()); return symbol(sym.DOT);        }
-    ":"                                                         { System.out.print("\t" + yytext()); return symbol(sym.COLON);      }
-    "&^ "                                                       { System.out.print("\t" + yytext()); return symbol(sym.ANDNOT);     }
-    "&^="                                                       { System.out.print("\t" + yytext()); return symbol(sym.ANDNOTEQ);   }
+    "+"                                                         { System.out.println(yytext()); return symbol(sym.PLUS);       }
+    "&"                                                         { System.out.println(yytext()); return symbol(sym.AND);        }
+    "+= "                                                       { System.out.println(yytext()); return symbol(sym.PLUSEQ);     }
+    "&="                                                        { System.out.println(yytext()); return symbol(sym.ANDEQ);     }
+    "&&"                                                        { System.out.println(yytext()); return symbol(sym.ANDAND);      }
+    "=="                                                        { System.out.println(yytext()); return symbol(sym.EQEQ);       }
+    "!="                                                        { System.out.println(yytext()); return symbol(sym.NOTEQ);      }
+    "("                                                         { System.out.println(yytext()); return symbol(sym.LPAREN);     }
+    ")"                                                         { System.out.println(yytext()); return symbol(sym.RPAREN);     }
+    "-"                                                         { System.out.println(yytext()); return symbol(sym.MINUS);      }
+    "|"                                                         { System.out.println(yytext()); return symbol(sym.PIPE);       }
+    "-="                                                        { System.out.println(yytext()); return symbol(sym.MINUSEQ);    }
+    "|="                                                        { System.out.println(yytext()); return symbol(sym.PIPEEQ);     }
+    "||"                                                        { System.out.println(yytext()); return symbol(sym.PIPEPIPE);   }
+    "<"                                                         { System.out.println(yytext()); return symbol(sym.LT);         }
+    "<="                                                        { System.out.println(yytext()); return symbol(sym.LTEQ);       }
+    "["                                                         { System.out.println(yytext()); return symbol(sym.LBRACK);     }
+    "]"                                                         { System.out.println(yytext()); return symbol(sym.RBRACK);     }
+    "*"                                                         { System.out.println(yytext()); return symbol(sym.MULT);       }
+    "^"                                                         { System.out.println(yytext()); return symbol(sym.CIRCU);      }
+    "*="                                                        { System.out.println(yytext()); return symbol(sym.MULTEQ);     }
+    "^="                                                        { System.out.println(yytext()); return symbol(sym.CIRCUEQ);    }
+    "<-"                                                        { System.out.println(yytext()); return symbol(sym.ARRLEFT);    }
+    ">"                                                         { System.out.println(yytext()); return symbol(sym.GT);         }
+    ">="                                                        { System.out.println(yytext()); return symbol(sym.GTEQ);       }
+    "{"                                                         { System.out.println(yytext()); return symbol(sym.LBRACE);     }
+    "}"                                                         { System.out.println(yytext()); return symbol(sym.RBRACE);     }
+    "/"                                                         { System.out.println(yytext()); return symbol(sym.DIV);        }
+    "<<"                                                        { System.out.println(yytext()); return symbol(sym.LSHIFT);     }
+    "/="                                                        { System.out.println(yytext()); return symbol(sym.DIVEQ);      }
+    "<<="                                                       { System.out.println(yytext()); return symbol(sym.LSHIFTEQ);   }
+    "++"                                                        { System.out.println(yytext()); return symbol(sym.PLUSPLUS);   }
+    "="                                                         { System.out.println(yytext()); return symbol(sym.EQ);         }
+    ":="                                                        { System.out.println(yytext()); return symbol(sym.DIVEQ);      }
+    ","                                                         { System.out.println(yytext()); return symbol(sym.COMMA);   }
+    ";"                                                         { System.out.println(yytext()); return symbol(sym.SEMICOLON);  }
+    "%"                                                         { System.out.println(yytext()); return symbol(sym.MOD);        }
+    ">>"                                                        { System.out.println(yytext()); return symbol(sym.RSHIFT);     }
+    "%="                                                        { System.out.println(yytext()); return symbol(sym.MODEQ);      }
+    ">>="                                                       { System.out.println(yytext()); return symbol(sym.RSHIFTEQ);   }
+    "--"                                                        { System.out.println(yytext()); return symbol(sym.MINUSMINUS); }
+    "!"                                                         { System.out.println(yytext()); return symbol(sym.NOT);        }
+    "..."                                                       { System.out.println(yytext()); return symbol(sym.ELLIPSIS);   }
+    "."                                                         { System.out.println(yytext()); return symbol(sym.DOT);        }
+    ":"                                                         { System.out.println(yytext()); return symbol(sym.COLON);      }
+    "&^ "                                                       { System.out.println(yytext()); return symbol(sym.ANDNOT);     }
+    "&^="                                                       { System.out.println(yytext()); return symbol(sym.ANDNOTEQ);   }
 
     /*TOKENS*/
 
-    "/*"[^*/]*"*/"{line_terminator}?                            { System.out.print("Found traditional comment: " + yytext()); yyline++; yybegin(0);}
+    "/*"[^*/]*"*/"{line_terminator}?                            { System.out.println("Found traditional comment: " + yytext()); yyline++; yybegin(0);}
     {comment}                                                   { /* ignore */ }
     "//"[^\n]*{line_terminator}?                                { /* ignore */ }
-    {decimal_literal}                                           { System.out.print("decimal: " + yytext());  return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
-    {float_literal}                                             { System.out.print("float literal:" + yytext()); return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
-    {hex_literal}                                               { System.out.print("hex literal:" + yytext()); return symbol(sym.HEX_LITERAL, yytext());}
+    {decimal_literal}                                           { System.out.println("decimal: " + yytext());  return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
+    {float_literal}                                             { System.out.println("float literal:" + yytext()); return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
+    {hex_literal}                                               { System.out.println("hex literal:" + yytext()); return symbol(sym.HEX_LITERAL, yytext());}
     {white_space}                                               { /* Ignore */}
-    {letters}{digits}*	                                        { System.out.print("found id: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
-    {string_literal}                                            { System.out.print("\tstring: " + yytext()); return symbol(sym.STRING_LITERAL, yytext()); }
-    {imaginary_literal}                                         { System.out.print("\tImaginary: " + yytext()); return symbol(sym.IMAGINARY_LITERAL, yytext()); }
-    {octal_literal}                                             { System.out.print("\toctal: " + yytext()); return symbol(sym.OCTAL_LITERAL, yytext()); }
+    {identifier}		                                        { System.out.println("found id: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
+    {identifier}"."{identifier}									{ System.out.println("found qualified id: " + yytext()); return symbol(sym.QUALIFIED_IDENTIFIER, yytext()); }
+    {string_literal}                                            { System.out.println("string: " + yytext()); return symbol(sym.STRING_LITERAL, yytext()); }
+    {imaginary_literal}                                         { System.out.println("Imaginary: " + yytext()); return symbol(sym.IMAGINARY_LITERAL, yytext()); }
+    {octal_literal}                                             { System.out.println("octal: " + yytext()); return symbol(sym.OCTAL_LITERAL, yytext()); }
 }
 
-[^]|\n                             { throw new RuntimeException("Erro léxico caractere ilegal: \""+yytext()+
-                                                              "\" na linha "+yyline+", coluna "+yycolumn); }
+[^]|\n                             { throw new RuntimeException("Erro léxico caractere ilegal:" + yytext() +
+                                                              " na linha " + yyline + ", " + " coluna " + yycolumn); }
 <<EOF>>                          { return symbol(sym.EOF); }
