@@ -191,7 +191,7 @@ non terminal compilation_unit;
 
 non terminal package_declaration_opt, package_declaration, package_name;
 non terminal import_declarations_opt, import_declarations, import_declaration;
-non terminal func_declarations_opt, func_body;
+non terminal func_declaration, func_body;
 non terminal Statements_opt, Statements, Statement;
 non terminal top_level_decl;
 non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
@@ -200,6 +200,9 @@ non terminal declaration;
 non terminal const_decl, type_decl, var_decl, method_decl;
 non terminal block;
 non terminal EOF;
+non terminal const_spec;
+non terminal identifier_list;
+non terminal top_import_decl;
 
 
 /* precedência de operadores, os de baixo tem maior precedência */
@@ -213,37 +216,31 @@ precedence left MULT, DIV, MOD, LSHIFT, RSHIFT, AND, ANDNOT;
 precedence left NOT, ARRLEFT;
 
 
+
   start with goal;
   
   goal ::= compilation_unit:c {: RESULT = c; :};
 
   compilation_unit ::=
-  		package_declaration_opt
-  		import_declarations_opt
-      	top_level_decl
+  		package_declaration_opt top_import_decl
       {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :};
-
-  package_declaration_opt ::= package_declaration | ;
+      
   
-  import_declarations_opt ::= import_declarations | ;
+  top_import_decl ::=  | import_declaration top_import_decl | top_level_decl top_import_decl;
   
-  top_level_decl ::= declaration | func_declarations_opt | method_decl;
+  top_level_decl ::= declaration | func_declaration | method_decl;
   
   declaration ::=  const_decl;
 
-  const_decl ::= CONST IDENTIFIER EQ;
+  //const_decl ::= CONST;
 
-  package_declaration ::= PACKAGE package_name;
+  package_declaration_opt ::= | PACKAGE package_name;
   
   package_name ::= IDENTIFIER;
-
-  import_declarations ::=
-  		import_declaration
-  	|	import_declarations import_declaration;
   	
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declarations_opt ::= | func_declarations_opt FUNC IDENTIFIER LPAREN params_opt RPAREN type_opt func_body;
+  func_declaration ::= FUNC IDENTIFIER LPAREN params_opt RPAREN type_opt func_body;
 
   func_body ::= block;
   
@@ -251,7 +248,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= expression | assignment;
+  Statement ::= declaration | expression | assignment;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -323,7 +320,7 @@ precedence left NOT, ARRLEFT;
 	  	literal |
 	    IDENTIFIER | 
 	    QUALIFIED_IDENTIFIER | 
-	    LPAREN expression_list_opt RPAREN  |
+	    LPAREN expression RPAREN  |
 	    
     /* Operand Rule ends */
 
@@ -389,10 +386,21 @@ precedence left NOT, ARRLEFT;
   		
 	/* Arguments rule ends */
 	
+  /* Const Declaration */
+
+  const_decl ::= CONST const_spec | LPAREN const_spec RPAREN;
+
+  const_spec ::= identifier_list type EQ expression_list | identifier_list EQ expression_list;
+
+  /* Const Declaration */
+	
+	
 	
   expression_list_opt ::= | expression_list;
 
   expression_list ::= expression | expression_list COMMA expression;
+  
+  identifier_list ::= IDENTIFIER | identifier_list COMMA IDENTIFIER;
  
   index ::= LBRACK expression RBRACK;
 

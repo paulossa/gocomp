@@ -2,6 +2,8 @@ package main
 
 import "fmt"
 
+const a, b, c = 3, 4, "foo"
+
 func plus(j int, b int) int {
     x = 3
     return x

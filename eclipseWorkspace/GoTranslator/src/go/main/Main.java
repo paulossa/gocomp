@@ -10,11 +10,11 @@ public class Main {
 	private static final int MIN_INPUT_FILES = 1;
 
 	public static void main(String[] args) {
-		startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go");
+		startCompilationFor("/Users/filipe/Repositories/compiladores/eclipseWorkspace/GoTranslator/test/input1.go");
 		if (args.length < MIN_INPUT_FILES) {
 			printHowTo();
 		} else {
-			for (String filePath : args) { startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go"); }
+			for (String filePath : args) { startCompilationFor("/Users/filipe/Repositories/compiladores/eclipseWorkspace/GoTranslator/test/input1.go"); }
 		}
 	}
 
