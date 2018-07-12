@@ -1,21 +1,3 @@
-/*
-  This example comes from a short article series in the Linux
-  Gazette by Richard A. Sevenich and Christopher Lopes, titled
-  "Compiler Construction Tools". The article series starts at
-
-  http://www.linuxgazette.com/issue39/sevenich.html
-
-  Small changes and updates to newest JFlex+Cup versions
-  by Gerwin Klein
-*/
-
-/*
-  Commented By: Christopher Lopes
-  File Name: ycalc.cup
-  To Create: > java java_cup.Main < ycalc.cup
-*/
-
-
 /* ----------------------Preliminary Declarations Section--------------------*/
 
 /* Import the class java_cup.runtime.*  */
@@ -168,7 +150,7 @@ non terminal goal;
 non terminal operand, operandName;
 non terminal assignment, assignments_opt;
 non terminal expression, unary_expression, primary_expression, expressions_opt, return_opt;
-non terminal index, slice, type_assertion, expression_list, expression_list_opt, conversion;
+non terminal index, slice, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
 
 // 19.3) Lexical Structure
 non terminal literal;
@@ -190,12 +172,12 @@ non terminal array_type;
 non terminal compilation_unit;
 
 non terminal package_declaration_opt, package_declaration, package_name;
-non terminal import_declarations_opt, import_declarations, import_declaration;
+non terminal import_declaration;
 non terminal func_declaration, func_body;
-non terminal Statements_opt, Statements, Statement;
+non terminal Statements, Statement;
 non terminal top_level_decl;
 non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
-non terminal arg, args, args_opt;
+non terminal args;
 non terminal declaration;
 non terminal const_decl, type_decl, var_decl, method_decl;
 non terminal block;
@@ -312,79 +294,61 @@ precedence left NOT, ARRLEFT;
   
   primary_expression ::= 
   
+	operand |
+	   
+	conversion |
+    
+    method_name |
+    
+	primary_expression selector | 
+    
+	primary_expression index | 
+    
+	primary_expression slice |
+  	
+	primary_expression type_assertion |
+  	
+	primary_expression args;
+  		
+	
   	/* Algumas regras estão comentadas para evitar ambiguidade 
   	   pois é possível derivá-las de outra forma */
-  	  
-  	/* Operand Rule begins */
-  	
+  	  	
+
+	
+  args ::= 	
+  		LPAREN expression_list RPAREN |
+  		LPAREN RPAREN;
+	
+	
+  operand ::=   	
 	  	literal |
 	    IDENTIFIER | 
 	    QUALIFIED_IDENTIFIER | 
-	    LPAREN expression RPAREN  |
+	    LPAREN expression RPAREN ;
 	    
-    /* Operand Rule ends */
-
-
-
-  	/* Conversion Rule begins */
-	
-		//IDENTIFIER LPAREN expression RPAREN |
+	    
+  conversion ::=		
+  		//IDENTIFIER LPAREN expression RPAREN |
 		primitive_type LPAREN expression RPAREN | 
-		numeric_type LPAREN expression RPAREN | 
-	
-    /* Conversion Rule ends */
-    
-    
-    
-    /* MethodName Rule begins */
-	    
+		numeric_type LPAREN expression RPAREN ;
+		
+		
+  selector ::= DOT IDENTIFIER;
+  
+  
+  method_name ::= 	    
 	    //IDENTIFIER DOT IDENTIFIER |
 	    primitive_type DOT IDENTIFIER |
-	    numeric_type DOT IDENTIFIER |
-    
-    /* MethodName Rule ends */
-    
-    
-    
-    /* Selector Rule begins */
-
-    	primary_expression DOT IDENTIFIER | 
-    
-    /* Selector Rule ends */
-    
-    
-    
-	 /* Index Rule begins */
-	 
-    	primary_expression index | 
-    	
-     /* Index Rule ends */
-    
-    
-    
-    /* Slice begins */
-    
-  		primary_expression slice | 
+	    numeric_type DOT IDENTIFIER ;
+	    
+	    
+  type_assertion ::= 
+  		DOT LPAREN IDENTIFIER RPAREN | 
+  		DOT LPAREN primitive_type RPAREN | 
+  		DOT LPAREN numeric_type RPAREN;
   	
-  	/* Slice Rule ends */
-  	
-  	
-  	
-  	/* Type Assertion begin */
-  	
-  		primary_expression DOT LPAREN IDENTIFIER RPAREN | 
-  		primary_expression DOT LPAREN primitive_type RPAREN | 
-  		primary_expression DOT LPAREN numeric_type RPAREN |
-  	
-  	/* Type Assertion ends */
-  	
-  	
-  	/* Arguments rule begins */
-  	
-  		primary_expression LPAREN expression_list RPAREN |
-  		primary_expression LPAREN RPAREN;
-  		
-	/* Arguments rule ends */
+	
 	
   /* Const Declaration */
 
@@ -406,8 +370,6 @@ precedence left NOT, ARRLEFT;
 
   slice ::= LBRACK expression COLON expression RBRACK | 
   	LBRACK expression COLON expression COLON expression RBRACK;
-  
-  conversion ::= type LPAREN expression RPAREN;
   
   assignment ::= expression_list assign_operator expression_list;
    
