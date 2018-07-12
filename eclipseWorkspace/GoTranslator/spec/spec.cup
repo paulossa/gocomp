@@ -186,8 +186,6 @@ non terminal const_spec;
 non terminal identifier_list;
 non terminal top_import_decl;
 non terminal const_spec_b;
-non terminal identifier_list_commaless;
-
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -358,7 +356,7 @@ precedence left NOT, ARRLEFT;
 
   const_spec ::= identifier_list type EQ expression_list | identifier_list EQ expression_list;
   
-  const_spec_b ::= identifier_list_commaless | identifier_list_commaless EQ expression_list;
+  const_spec_b ::= | identifier_list const_spec_b | identifier_list EQ expression_list const_spec_b;
 
   /* Const Declaration */
 	
@@ -369,8 +367,6 @@ precedence left NOT, ARRLEFT;
   expression_list ::= expression | expression_list COMMA expression;
   
   identifier_list ::= IDENTIFIER | identifier_list COMMA IDENTIFIER;
-  
-  identifier_list_commaless ::=  | IDENTIFIER identifier_list_commaless;
  
   index ::= LBRACK expression RBRACK;
 
