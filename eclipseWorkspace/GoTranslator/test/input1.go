@@ -2,7 +2,16 @@ package main
 
 import "fmt"
 
-const a, b, c = 3, 4, "foo"
+const (
+	Sunday
+	Monday
+	Tuesday
+	Wednesday
+	Thursday
+	Friday
+	Partyday
+	numberOfDays  // this constant is not exported
+)
 
 func plus(j int, b int) int {
     x = 3
