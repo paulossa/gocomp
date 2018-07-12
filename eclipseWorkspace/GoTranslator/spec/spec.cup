@@ -244,28 +244,11 @@ precedence left NOT, ARRLEFT;
 
   func_body ::= block;
   
-  block ::= LBRACE Statements_opt return_opt RBRACE;
+  block ::= LBRACE expressions_opt return_opt RBRACE;
   
-  return_opt ::= | RETURN expression;
+  expressions_opt ::= | expressions_opt expression;
   
-  Statements_opt ::=  | Statements;
-  
-  Statements ::= Statement
-    | Statements Statement;
-    
-  Statement ::= IDENTIFIER LPAREN args_opt:i RPAREN {: System.out.println(i); :};
-  
-  args_opt ::= {:RESULT = ""; :}
-    | args:a {: RESULT = a; :};
-  
-    
-  args ::= arg:a {: RESULT = a; :}
-    | args COMMA arg;
-    
-    
-  arg ::= IDENTIFIER:i {: RESULT = i; :}
-    | STRING_LITERAL:l {: RESULT = l; :};
-    
+  return_opt ::= RETURN expression |  ;
     
   // Em go os tipos dos parametros devem ser explicitados em declarações de funcao, porem caso
   // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o 
@@ -320,38 +303,89 @@ precedence left NOT, ARRLEFT;
   
   primary_expression ::= 
   
+  	/* Algumas regras estão comentadas para evitar ambiguidade 
+  	   pois é possível derivá-las de outra forma */
+  	  
   	/* Operand Rule begins */
-  	/* Reduced manually due to shift reduce conflicts */
   	
 	  	literal |
-	    IDENTIFIER | QUALIFIED_IDENTIFIER //operand name
+	    IDENTIFIER | 
+	    QUALIFIED_IDENTIFIER | 
 	    LPAREN expression_list_opt RPAREN  |
 	    
     /* Operand Rule ends */
-	//TODO: Consertar shift-reduce com essa regra
-	//conversion |
 
-    primary_expression QUALIFIED_IDENTIFIER | primary_expression index | 
-  	primary_expression slice | 
+
+
+  	/* Conversion Rule begins */
+	
+		//IDENTIFIER LPAREN expression RPAREN |
+		primitive_type LPAREN expression RPAREN | 
+		numeric_type LPAREN expression RPAREN | 
+	
+    /* Conversion Rule ends */
+    
+    
+    
+    /* MethodName Rule begins */
+	    
+	    //IDENTIFIER DOT IDENTIFIER |
+	    primitive_type DOT IDENTIFIER |
+	    numeric_type DOT IDENTIFIER |
+    
+    /* MethodName Rule ends */
+    
+    
+    
+    /* Selector Rule begins */
+
+    	primary_expression DOT IDENTIFIER | 
+    
+    /* Selector Rule ends */
+    
+    
+    
+	 /* Index Rule begins */
+	 
+    	primary_expression index | 
+    	
+     /* Index Rule ends */
+    
+    
+    
+    /* Slice begins */
+    
+  		primary_expression slice | 
   	
-  	/* Type Conversion begin */
-  	//TODO: Consertar shift-reduce com essa regra
+  	/* Slice Rule ends */
   	
-  	//primary_expression DOT LPAREN type RPAREN | 
   	
-  	/* Type Conversion begin */
   	
-  	primary_expression LPAREN args RPAREN;
+  	/* Type Assertion begin */
+  	
+  		primary_expression DOT LPAREN IDENTIFIER RPAREN | 
+  		primary_expression DOT LPAREN primitive_type RPAREN | 
+  		primary_expression DOT LPAREN numeric_type RPAREN ;
+  	
+  	/* Type Assertion ends */
+  	
+  	
+  	/* Arguments rule begins */
+  	
+  	//	primary_expression LPAREN expression_list RPAREN |
+  	//	primary_expression LPAREN RPAREN;
   		
+	/* Arguments rule ends */
+	
+	
+  expression_list_opt ::= | expression_list;
+
+  expression_list ::= expression | expression_list COMMA expression;
  
   index ::= LBRACK expression RBRACK;
 
   slice ::= LBRACK expression COLON expression RBRACK | 
   	LBRACK expression COLON expression COLON expression RBRACK;
-  	
-  expression_list_opt ::= | expression_list;
-
-  expression_list ::= expression | expression_list COMMA expression;
   
   conversion ::= type LPAREN expression RPAREN;
    
