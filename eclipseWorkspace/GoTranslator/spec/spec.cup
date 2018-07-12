@@ -247,7 +247,11 @@ precedence left NOT, ARRLEFT;
 
   func_body ::= block;
   
-  block ::= LBRACE expressions_opt assignments_opt return_opt RBRACE;
+  block ::= LBRACE Statements return_opt RBRACE;
+  
+  Statements ::= | Statement Statements;
+  
+  Statement ::= expression | assignment;
   
   assignments_opt ::= | assignment assignments_opt;
   
