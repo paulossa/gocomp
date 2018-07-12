@@ -166,6 +166,7 @@ terminal java.lang.String QUALIFIED_IDENTIFIER;
 // 19.2) The Syntactic Grammar
 non terminal goal;
 non terminal operand, operandName;
+non terminal assignment, assignments_opt;
 non terminal expression, unary_expression, primary_expression, expressions_opt, return_opt;
 non terminal index, slice, type_assertion, expression_list, expression_list_opt, conversion;
 
@@ -176,6 +177,7 @@ non terminal binary_operator;
 non terminal relational_operator;
 non terminal add_operator;
 non terminal mult_operator;
+non terminal assign_operator;
 
 // 19.4) Types, Values, and Variables
 non terminal type, type_opt, primitive_type, numeric_type;
@@ -202,6 +204,7 @@ non terminal EOF;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
+precedence left LPAREN;
 precedence left PIPEPIPE;
 precedence left ANDAND;
 precedence left EQEQ, NOTEQ, LT, GT, LTEQ, GTEQ;
@@ -244,7 +247,9 @@ precedence left NOT, ARRLEFT;
 
   func_body ::= block;
   
-  block ::= LBRACE expressions_opt return_opt RBRACE;
+  block ::= LBRACE expressions_opt assignments_opt return_opt RBRACE;
+  
+  assignments_opt ::= | assignment assignments_opt;
   
   expressions_opt ::= | expressions_opt expression;
   
@@ -296,6 +301,9 @@ precedence left NOT, ARRLEFT;
   unary_operator ::= PLUS | MINUS | NOT | CIRCU | MULT | AND | ARRLEFT;
   
   mult_operator ::= MULT | DIV | MOD | LSHIFT | RSHIFT | AND | ANDNOT;
+  
+  assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
+  	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ; 
    
   expression ::= unary_expression | expression binary_operator expression;
   
@@ -365,15 +373,15 @@ precedence left NOT, ARRLEFT;
   	
   		primary_expression DOT LPAREN IDENTIFIER RPAREN | 
   		primary_expression DOT LPAREN primitive_type RPAREN | 
-  		primary_expression DOT LPAREN numeric_type RPAREN ;
+  		primary_expression DOT LPAREN numeric_type RPAREN |
   	
   	/* Type Assertion ends */
   	
   	
   	/* Arguments rule begins */
   	
-  	//	primary_expression LPAREN expression_list RPAREN |
-  	//	primary_expression LPAREN RPAREN;
+  		primary_expression LPAREN expression_list RPAREN |
+  		primary_expression LPAREN RPAREN;
   		
 	/* Arguments rule ends */
 	
@@ -388,4 +396,6 @@ precedence left NOT, ARRLEFT;
   	LBRACK expression COLON expression COLON expression RBRACK;
   
   conversion ::= type LPAREN expression RPAREN;
+  
+  assignment ::= expression_list assign_operator expression_list;
    
