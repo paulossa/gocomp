@@ -35,10 +35,13 @@ func plusPlus(a, b, c int) int {
 func main() {
 
 
-	if k {
+    if x := f(); x < (y >> 3) {
+        // return x
+    } 
+    else if kkk {
 
-	}
-	
+    }
+    	
 
     yo = calc
     (1+3) >> 3

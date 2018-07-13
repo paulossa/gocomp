@@ -186,7 +186,7 @@ non terminal const_spec;
 non terminal identifier_list;
 non terminal top_import_decl;
 non terminal const_spec_b;
-non terminal if_stmt;
+non terminal if_stmt, else_stmt;
 non terminal simple_stmt;
 non terminal if_head;
 non terminal simple_stmt_b;
@@ -365,11 +365,16 @@ precedence left NOT, ARRLEFT;
 
   /* IF Statement */
   
-  if_stmt ::= IF if_head block;
+  if_stmt ::= 
+  	IF if_head block |
+  	IF if_head block else_stmt;
+  	
   if_head ::= simple_stmt expression | expression;
   
+  else_stmt ::= ELSE if_stmt | ELSE block;
+  
   //TODO: adicionar inc dec stmt e short var decl
-  simple_stmt ::= simple_stmt_b COMMA;
+  simple_stmt ::= simple_stmt_b SEMICOLON;
   simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment;
   
   
