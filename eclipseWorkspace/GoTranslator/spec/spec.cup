@@ -179,7 +179,7 @@ non terminal top_level_decl;
 non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
 non terminal args;
 non terminal declaration;
-non terminal const_decl, type_decl, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
+non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
 non terminal block;
 non terminal EOF;
 non terminal const_spec;
@@ -212,7 +212,7 @@ precedence left NOT, ARRLEFT;
   
   top_level_decl ::= declaration | func_declaration | method_decl;
   
-  declaration ::=  const_decl | var_decl;
+  declaration ::=  const_decl | var_decl | type_decl;
 
   package_declaration_opt ::= | PACKAGE package_name;
   
@@ -375,6 +375,23 @@ precedence left NOT, ARRLEFT;
    		 type EQ expression_list;
    		
   /* Variable Declaration */
+  
+  
+  /* Type Declaration */
+  
+    type_decl ::= TYPE type_decl_aux;
+    
+    type_decl_aux ::= type_spec | LPAREN type_specs RPAREN;
+    
+    type_spec ::= alias_decl | type_def;
+    
+    type_specs ::= type_spec| type_spec type_specs;
+    
+    type_def ::= IDENTIFIER type;
+    
+    alias_decl ::= IDENTIFIER EQ type;
+  
+  /* Type Declaration */
 	
 	
   expression_list_opt ::= | expression_list;

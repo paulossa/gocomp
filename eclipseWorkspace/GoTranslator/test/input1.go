@@ -13,6 +13,14 @@ const (
 	numberOfDays  // this constant is not exported
 )
 
+type (
+    // nodeList = []*Node  // nodeList and []*Node are identical types
+    Polar    = polar    // Polar and polar denote identical types
+    MIZERA = DDA
+)
+
+type NewMutex Mutex
+
 func plus(j int, b int) int {
     var x int = 1
     var k, z float64 = -1, -2
@@ -37,13 +45,13 @@ func main() {
     yo = calc
     (1+3) >> 3
     yo = calc()
-    // x
-    // x.o
-    //classe.metodo(classe2.metodo2(a))
-    // int(a)
-    // x.b()
-    // lkk(1)
-    // lkk(1,2,3)
+    x
+    x.o
+    classe.metodo(classe2.metodo2(a))
+    int(a)
+    x.b()
+    lkk(1)
+    lkk(1,2,3)
     const x int = 1
 
     carlos += 1<<3 + (4 * 1)
