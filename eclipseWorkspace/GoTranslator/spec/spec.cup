@@ -186,6 +186,10 @@ non terminal const_spec;
 non terminal identifier_list;
 non terminal top_import_decl;
 non terminal const_spec_b;
+non terminal if_stmt;
+non terminal simple_stmt;
+non terminal if_head;
+non terminal simple_stmt_b;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -228,7 +232,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | expression | assignment;
+  Statement ::= declaration | expression | assignment | if_stmt;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -358,7 +362,19 @@ precedence left NOT, ARRLEFT;
 
   /* Const Declaration */
 	
-	
+
+  /* IF Statement */
+  
+  if_stmt ::= IF if_head block;
+  if_head ::= simple_stmt expression | expression;
+  
+  //TODO: adicionar inc dec stmt e short var decl
+  simple_stmt ::= simple_stmt_b COMMA;
+  simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment;
+  
+  
+  /* IF Statement */
+  
 	
   /* Variable Declaration */
   

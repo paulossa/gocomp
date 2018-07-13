@@ -2,16 +2,7 @@ package main
 
 import "fmt"
 
-const (
-	Sunday
-	Monday
-	Tuesday
-	Wednesday
-	Thursday
-	Friday
-	Partyday
-	numberOfDays  // this constant is not exported
-)
+const a int = 3
 
 type (
     // nodeList = []*Node  // nodeList and []*Node are identical types
@@ -42,6 +33,13 @@ func plusPlus(a, b, c int) int {
 }
 
 func main() {
+
+
+	if k {
+
+	}
+	
+
     yo = calc
     (1+3) >> 3
     yo = calc()
