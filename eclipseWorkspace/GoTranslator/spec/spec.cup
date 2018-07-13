@@ -377,7 +377,6 @@ precedence left NOT, ARRLEFT;
   /* Variable Declaration */
 	
 	
-	
   expression_list_opt ::= | expression_list;
 
   expression_list ::= expression | expression_list COMMA expression;
