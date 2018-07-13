@@ -162,11 +162,12 @@ non terminal mult_operator;
 non terminal assign_operator;
 
 // 19.4) Types, Values, and Variables
-non terminal type, type_opt, primitive_type, numeric_type;
+non terminal type, type_name, type_literal, type_opt, primitive_type, numeric_type;
 non terminal integral_type, floating_point_type;
-non terminal reference_type;
-non terminal class_or_interface_type;
+non terminal slice_type, map_type, channel_type;
+non terminal function_type;
 non terminal class_type, interface_type;
+non terminal struct_type, field_declaration, embedded_field, asterisk_opt, tag_opt, field_declarations;
 non terminal array_type;
 
 non terminal compilation_unit;
@@ -259,7 +260,44 @@ precedence left NOT, ARRLEFT;
   
   type_opt ::= | type;
   
-  type ::= IDENTIFIER | primitive_type | numeric_type; 
+  
+  
+  /* Types */
+  
+  type ::= type_name | type_literal | LPAREN type RPAREN;
+  
+  type_literal ::= array_type | struct_type;
+    
+  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER | primitive_type | numeric_type;
+  
+  array_type ::=
+  	LBRACK expression RBRACK type;
+  	
+   /* Struct type */
+  	
+	  struct_type ::=
+	  	STRUCT LBRACE field_declarations RBRACE;
+	  	
+	  field_declarations ::= field_declarations field_declaration tag_opt | ;
+	  
+	  field_declaration ::= 
+	  	IDENTIFIER embedded_field | 
+	  	QUALIFIED_IDENTIFIER | 
+	  	//IDENTIFIER | 
+	  	primitive_type | 
+	  	numeric_type |
+	  	MULT QUALIFIED_IDENTIFIER | 
+	  	MULT IDENTIFIER | 
+	  	MULT primitive_type | 
+	  	MULT numeric_type;
+	  	
+  	  embedded_field ::= COMMA IDENTIFIER embedded_field type |;
+	  	
+	  tag_opt ::= | STRING_LITERAL;
+	  
+	  //embedded_field ::= MULT type_name | type_name;
+	  
+   /* Struct type */
   
   primitive_type ::= BOOL;
   
@@ -271,6 +309,10 @@ precedence left NOT, ARRLEFT;
 	RUNE | BYTE | SHORT | UINTPTR | UINT8 | UINT16 | 
 	UINT32 | UINT64 | UINT | INT8 | INT16 | INT32 | 
 	INT64 | INT | LONG | CHAR;
+	
+  /* Types */
+   
+   
 	
   literal ::= INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL
    | HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | STRING_LITERAL;
@@ -397,7 +439,7 @@ precedence left NOT, ARRLEFT;
    		
   /* Variable Declaration */
   
-  
+
   /* Type Declaration */
   
     type_decl ::= TYPE type_decl_aux;

@@ -4,6 +4,19 @@ import "fmt"
 
 const a int = 3
 
+var a [5]int
+
+type pessoa struct {
+    T1        // field name is T1
+    *T2       // field name is T2
+    P.T3      // field name is T3
+    *P.T4     // field name is T4
+    x, y int  // field names are x and y
+    z float64
+}
+
+type vazio struct {}
+
 type (
     // nodeList = []*Node  // nodeList and []*Node are identical types
     Polar    = polar    // Polar and polar denote identical types
