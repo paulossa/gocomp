@@ -14,6 +14,15 @@ const (
 )
 
 func plus(j int, b int) int {
+    var x int = 1
+    var k, z float64 = -1, -2
+    var(k uint)
+    var (
+        u, v, s = 2.0, 3.0, "bar"
+        i, j int
+        ih float64
+        re, dskao, jdihs = 2.0, 3.0, "bar"
+    )
     x = 3
     return x
 }
@@ -35,6 +44,7 @@ func main() {
     // x.b()
     // lkk(1)
     // lkk(1,2,3)
+    const x int = 1
 
     carlos += 1<<3 + (4 * 1)
     xd,lol = po,x.calc()

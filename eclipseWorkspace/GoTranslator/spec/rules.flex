@@ -120,7 +120,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "for"                                                       { return symbol(sym.FOR);                                           }
     "import"                                                    { return symbol(sym.IMPORT);                                        }
     "return"                                                    { return symbol(sym.RETURN);                                        }
-    "var"                                                       { return symbol(sym.VAR);                                           }
+    "var"                                                       { System.out.println(yytext()); return symbol(sym.VAR);                                           }
 
     /*OPERATORS AND PUNCTUATION*/
 

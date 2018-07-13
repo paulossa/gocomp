@@ -179,7 +179,7 @@ non terminal top_level_decl;
 non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
 non terminal args;
 non terminal declaration;
-non terminal const_decl, type_decl, var_decl, method_decl;
+non terminal const_decl, type_decl, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
 non terminal block;
 non terminal EOF;
 non terminal const_spec;
@@ -214,9 +214,7 @@ precedence left NOT, ARRLEFT;
   
   top_level_decl ::= declaration | func_declaration | method_decl;
   
-  declaration ::=  const_decl;
-
-  //const_decl ::= CONST;
+  declaration ::=  const_decl | var_decl;
 
   package_declaration_opt ::= | PACKAGE package_name;
   
@@ -361,6 +359,24 @@ precedence left NOT, ARRLEFT;
   const_spec_b ::= identifier_list_commaless | identifier_list_commaless EQ expression_list;
 
   /* Const Declaration */
+	
+	
+	
+  /* Variable Declaration */
+  
+   var_decl ::= VAR var_spec | VAR LPAREN var_specs RPAREN;
+   
+   var_specs ::= var_spec | var_spec var_specs ;
+   
+   var_spec ::= 
+   		identifier_list var_spec_aux;
+   		
+   var_spec_aux ::=
+   		 type |
+   		 EQ expression_list |
+   		 type EQ expression_list;
+   		
+  /* Variable Declaration */
 	
 	
 	

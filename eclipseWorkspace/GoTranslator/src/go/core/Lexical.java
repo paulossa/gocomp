@@ -1248,7 +1248,7 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 161: break;
           case 58: 
-            { return symbol(sym.VAR);
+            { System.out.println(yytext()); return symbol(sym.VAR);
             }
           case 162: break;
           case 59: 
