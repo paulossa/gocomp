@@ -45,6 +45,8 @@ func plus(j int, b int) int {
 
 		L:
 		f(i)
+
+		continue ;
 	}
 
 	for ; a > b ; {
