@@ -4,7 +4,11 @@ import "fmt"
 
 const a int = 3
 
+var x *[4]int = 2
+
 var a [5]int
+
+type action func(a, b, x int, c int, k ...float64,) int; 
 
 type pessoa struct {
     T1        // field name is T1
@@ -18,7 +22,7 @@ type pessoa struct {
 type vazio struct {}
 
 type (
-    // nodeList = []*Node  // nodeList and []*Node are identical types
+    nodeList = [2]*Node  // nodeList and []*Node are identical types
     Polar    = polar    // Polar and polar denote identical types
     MIZERA = DDA
 )

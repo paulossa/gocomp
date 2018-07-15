@@ -71,28 +71,6 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
 <YYINITIAL> {
 
 	/* TYPES */
-	"rune"														{ return symbol(sym.RUNE);                                         	}
-	"byte"														{ return symbol(sym.BYTE);                                         	}
-	"short"														{ return symbol(sym.SHORT);                                         	}
-	"long"														{ return symbol(sym.LONG);                                         	}
-	"char"														{ return symbol(sym.CHAR);                                         	}
-	"complex64"													{ return symbol(sym.COMPLEX64);                                         	}	
-	"complex128"												{ return symbol(sym.COMPLEX128);                                         	}
-	"bool"														{ return symbol(sym.BOOL);                                         	}
-	"int"														{ System.out.println("found int"); return symbol(sym.INT);                                         	}
-	"int8"														{ return symbol(sym.INT8);                                        	}
-	"int16"														{ return symbol(sym.INT16);                                       	}
-	"int32"														{ return symbol(sym.INT32);                                       	}
-	"int64"														{ return symbol(sym.INT64);                                       	}
-	"uint"														{ return symbol(sym.UINT);                                        	}
-	"uintptr"													{ return symbol(sym.UINTPTR);                                       }
-	"uint8"														{ return symbol(sym.UINT8);                                        	}	
-	"uint16"													{ return symbol(sym.UINT16);                                        }
-	"uint32"													{ return symbol(sym.UINT32);                                        }    
-	"uint64"													{ return symbol(sym.UINT64);                                        }    
-	"float32"													{ return symbol(sym.FLOAT32);                                       }    
-	"float64"													{ return symbol(sym.FLOAT64);                                       }    
-    
     
     /*KEYWORDS*/
 

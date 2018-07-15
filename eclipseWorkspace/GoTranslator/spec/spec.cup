@@ -148,8 +148,8 @@ terminal java.lang.String QUALIFIED_IDENTIFIER;
 // 19.2) The Syntactic Grammar
 non terminal goal;
 non terminal operand, operandName;
-non terminal assignment, assignments_opt;
-non terminal expression, unary_expression, primary_expression, expressions_opt, return_opt;
+non terminal assignment;
+non terminal expression, unary_expression, primary_expression, return_opt;
 non terminal index, slice, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
 
 // 19.3) Lexical Structure
@@ -162,22 +162,23 @@ non terminal mult_operator;
 non terminal assign_operator;
 
 // 19.4) Types, Values, and Variables
-non terminal type, type_name, type_literal, type_opt, primitive_type, numeric_type;
-non terminal integral_type, floating_point_type;
+non terminal type, type_name, type_literal, type_opt;
 non terminal slice_type, map_type, channel_type;
 non terminal function_type;
+non terminal signature, result, result_opt;
 non terminal class_type, interface_type;
-non terminal struct_type, field_declaration, embedded_field, asterisk_opt, tag_opt, field_declarations;
+non terminal struct_type, field_declaration, embedded_field, comma_opt, tag_opt, field_declarations;
 non terminal array_type;
+non terminal pointer_type;
 
 non terminal compilation_unit;
 
-non terminal package_declaration_opt, package_declaration, package_name;
+non terminal package_declaration_opt, package_name;
 non terminal import_declaration;
 non terminal func_declaration, func_body;
 non terminal Statements, Statement;
 non terminal top_level_decl;
-non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
+non terminal params, param_list, ellipsis_opt;
 non terminal args;
 non terminal declaration;
 non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
@@ -194,6 +195,7 @@ non terminal simple_stmt_b;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
+//precedence right RPAREN;
 precedence left LPAREN;
 precedence left PIPEPIPE;
 precedence left ANDAND;
@@ -225,7 +227,7 @@ precedence left NOT, ARRLEFT;
   	
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declaration ::= FUNC IDENTIFIER LPAREN params_opt RPAREN type_opt func_body;
+  func_declaration ::= FUNC IDENTIFIER LPAREN param_list RPAREN type_opt func_body;
 
   func_body ::= block;
   
@@ -235,40 +237,40 @@ precedence left NOT, ARRLEFT;
   
   Statement ::= declaration | expression | assignment | if_stmt;
   
-  assignments_opt ::= | assignment assignments_opt;
-  
-  expressions_opt ::= | expressions_opt expression;
-  
   return_opt ::= RETURN expression |  ;
     
   // Em go os tipos dos parametros devem ser explicitados em declarações de funcao, porem caso
   // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o 
   // ultimo parametro com o tipo explicito.
   
-  params_opt ::=  | typed_params | untyped_params COMMA typed_param;
+  params ::= LPAREN param_list RPAREN;
   
-  untyped_params ::= untyped_param | untyped_params COMMA untyped_param;
+  param_list ::= identifier_list ellipsis_opt type comma_opt param_list | ;
   
-  typed_params ::= typed_param | typed_params COMMA typed_param;
- 
-  untyped_param ::= IDENTIFIER;
+  comma_opt ::= COMMA | ;
   
-  // O tipo do parametro pode ser uma classe definida pelo usuario, 
-  //entao qualquer IDENTIFIER é sintaticamente válido como tipo.
- 
-  typed_param ::= IDENTIFIER type;
+  ellipsis_opt ::= ELLIPSIS | ;
   
   type_opt ::= | type;
-  
   
   
   /* Types */
   
   type ::= type_name | type_literal | LPAREN type RPAREN;
   
-  type_literal ::= array_type | struct_type;
+  type_literal ::= array_type | struct_type | pointer_type | function_type;
     
-  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER | primitive_type | numeric_type;
+  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER;
+  
+  pointer_type ::= MULT type;
+  
+  function_type ::= FUNC signature;
+  
+  signature ::= params result_opt;
+  
+  result ::= type;
+  
+  result_opt ::= result SEMICOLON | SEMICOLON;
   
   array_type ::=
   	LBRACK expression RBRACK type;
@@ -284,14 +286,10 @@ precedence left NOT, ARRLEFT;
 	  	IDENTIFIER embedded_field | 
 	  	QUALIFIED_IDENTIFIER | 
 	  	//IDENTIFIER | 
-	  	primitive_type | 
-	  	numeric_type |
 	  	MULT QUALIFIED_IDENTIFIER | 
-	  	MULT IDENTIFIER | 
-	  	MULT primitive_type | 
-	  	MULT numeric_type;
+	  	MULT IDENTIFIER;
 	  	
-  	  embedded_field ::= COMMA IDENTIFIER embedded_field type |;
+  	  embedded_field ::= | COMMA IDENTIFIER embedded_field type;
 	  	
 	  tag_opt ::= | STRING_LITERAL;
 	  
@@ -299,25 +297,12 @@ precedence left NOT, ARRLEFT;
 	  
    /* Struct type */
   
-  primitive_type ::= BOOL;
-  
-  numeric_type ::= floating_point_type | integral_type;
-  	
-  floating_point_type ::= FLOAT32 | FLOAT64;
- 
-  integral_type ::= COMPLEX64 | COMPLEX128 | 
-	RUNE | BYTE | SHORT | UINTPTR | UINT8 | UINT16 | 
-	UINT32 | UINT64 | UINT | INT8 | INT16 | INT32 | 
-	INT64 | INT | LONG | CHAR;
-	
   /* Types */
    
    
 	
   literal ::= INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL
    | HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | STRING_LITERAL;
-  	
-  operator ::= binary_operator | relational_operator | add_operator | mult_operator;
   
   binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
   
@@ -372,25 +357,19 @@ precedence left NOT, ARRLEFT;
 	    LPAREN expression RPAREN ;
 	    
 	    
-  conversion ::=		
-  		//IDENTIFIER LPAREN expression RPAREN |
-		primitive_type LPAREN expression RPAREN | 
-		numeric_type LPAREN expression RPAREN ;
+  //conversion ::=		
+  		//IDENTIFIER LPAREN expression RPAREN;
 		
 		
   selector ::= DOT IDENTIFIER;
   
   
-  method_name ::= 	    
-	    //IDENTIFIER DOT IDENTIFIER |
-	    primitive_type DOT IDENTIFIER |
-	    numeric_type DOT IDENTIFIER ;
+  //method_name ::= 	    
+	    //IDENTIFIER DOT IDENTIFIER;
 	    
 	    
   type_assertion ::= 
-  		DOT LPAREN IDENTIFIER RPAREN | 
-  		DOT LPAREN primitive_type RPAREN | 
-  		DOT LPAREN numeric_type RPAREN;
+  		DOT LPAREN IDENTIFIER RPAREN;
   	
 	
 	
@@ -455,9 +434,7 @@ precedence left NOT, ARRLEFT;
     alias_decl ::= IDENTIFIER EQ type;
   
   /* Type Declaration */
-	
-	
-  expression_list_opt ::= | expression_list;
+  
 
   expression_list ::= expression | expression_list COMMA expression;
   
