@@ -58,7 +58,7 @@ func plus(j int, b int) int {
 	go (a+3) <- 8 * 3
 
 	for ; a > b ; {
-
+		break ;
 	}
 
 	for {}

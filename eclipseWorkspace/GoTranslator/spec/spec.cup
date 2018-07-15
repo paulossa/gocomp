@@ -198,6 +198,7 @@ non terminal label_stmt, label, label_opt;
 non terminal continue_stmt;
 non terminal send_stmt;
 non terminal go_stmt;
+non terminal break_stmt;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -240,7 +241,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | go_stmt | send_stmt | continue_stmt | label_stmt | expression | assignment | if_stmt | for_stmt;
+  Statement ::= declaration | go_stmt | send_stmt | continue_stmt | break_stmt | label_stmt | expression | assignment | if_stmt | for_stmt;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -498,6 +499,10 @@ precedence left NOT, ARRLEFT;
 	/* Continue Statement */
 	continue_stmt ::= CONTINUE label_opt;
 	/* Continue Statement */
+	
+	/* Break Statement */
+	break_stmt ::= BREAK label_opt;
+	/* Break Statement */
 	
 	/* Continue Statement */
 	send_stmt ::= expression ARRLEFT expression;
