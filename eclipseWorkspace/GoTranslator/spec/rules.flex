@@ -91,9 +91,9 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "switch"                                                    { return symbol(sym.SWITCH);                                        }
     "const"                                                     { return symbol(sym.CONST);                                         }
     "fallthrough"                                               { return symbol(sym.FALLTHROUGH);                                   }
-    "if"                                                        { return symbol(sym.IF);                                            }
+    "if"                                                        { System.out.println(yytext()); return symbol(sym.IF);                                            }
     "range"                                                     { return symbol(sym.RANGE);                                         }
-    "type"                                                      { return symbol(sym.TYPE);                                          }
+    "type"                                                      { System.out.println(yytext()); return symbol(sym.TYPE);                                          }
     "continue"                                                  { return symbol(sym.CONTINUE);                                      }
     "for"                                                       { return symbol(sym.FOR);                                           }
     "import"                                                    { return symbol(sym.IMPORT);                                        }
@@ -136,7 +136,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "<<="                                                       { System.out.println(yytext()); return symbol(sym.LSHIFTEQ);   }
     "++"                                                        { System.out.println(yytext()); return symbol(sym.PLUSPLUS);   }
     "="                                                         { System.out.println(yytext()); return symbol(sym.EQ);         }
-    ":="                                                        { System.out.println(yytext()); return symbol(sym.DIVEQ);      }
+    ":="                                                        { System.out.println(yytext()); return symbol(sym.COLONEQ);      }
     ","                                                         { System.out.println(yytext()); return symbol(sym.COMMA);   }
     ";"                                                         { System.out.println(yytext()); return symbol(sym.SEMICOLON);  }
     "%"                                                         { System.out.println(yytext()); return symbol(sym.MOD);        }

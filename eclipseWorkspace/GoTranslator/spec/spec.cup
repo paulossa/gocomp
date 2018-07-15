@@ -121,6 +121,7 @@ terminal ARRLEFT;
 terminal INFUNCEQ;
 terminal ELLIPSIS;
 
+terminal COLONEQ; //Short var decl
 terminal EQEQ, NOTEQ; // equality_expression
 terminal AND; // and_expression
 terminal ANDNOT;
@@ -149,11 +150,14 @@ terminal java.lang.String QUALIFIED_IDENTIFIER;
 non terminal goal;
 non terminal operand, operandName;
 non terminal assignment;
-non terminal expression, unary_expression, primary_expression, return_opt;
-non terminal index, slice, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
+non terminal expression, unary_expression, primary_expression, primary_expression_b, return_opt;
+non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
 
 // 19.3) Lexical Structure
-non terminal literal;
+non terminal 
+	literal, func_literal, composite_literal, 
+	literal_type, literal_value, composite_element, 
+	composite_element_list, composite_key ;
 non terminal operator, unary_operator;
 non terminal binary_operator;
 non terminal relational_operator;
@@ -163,10 +167,10 @@ non terminal assign_operator;
 
 // 19.4) Types, Values, and Variables
 non terminal type, type_name, type_literal, type_opt;
-non terminal slice_type, map_type, channel_type;
+non terminal slice_type, map_type, channel_type, channel_aux;
 non terminal function_type;
 non terminal signature, result, result_opt;
-non terminal class_type, interface_type;
+non terminal class_type, interface_type, method_spec, method_specs;
 non terminal struct_type, field_declaration, embedded_field, comma_opt, tag_opt, field_declarations;
 non terminal array_type;
 non terminal pointer_type;
@@ -176,12 +180,14 @@ non terminal compilation_unit;
 non terminal package_declaration_opt, package_name;
 non terminal import_declaration;
 non terminal func_declaration, func_body;
+non terminal type_b;
 non terminal Statements, Statement;
 non terminal top_level_decl;
 non terminal params, param_list, ellipsis_opt;
-non terminal args;
+non terminal args, args_aux;
 non terminal declaration;
-non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
+non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl;
+non terminal short_var_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
 non terminal block;
 non terminal EOF;
 non terminal const_spec;
@@ -190,8 +196,15 @@ non terminal top_import_decl;
 non terminal const_spec_b;
 non terminal if_stmt, else_stmt;
 non terminal simple_stmt;
+non terminal 
+	type_list, switch_stmt_head,
+	switch_stmt, switch_stmt_expr, switch_stmt_type, switch_stmt_guard,
+	switch_stmt_type_head, switch_stmt_type_cases, switch_stmt_type_case,
+	switch_stmt_expr_head, switch_stmt_expr_case, switch_stmt_expr_cases;
+non terminal select_stmt, select_cases, select_case, return_stmt;
 non terminal if_head;
 non terminal simple_stmt_b;
+non terminal simple_stmt_complete;
 non terminal for_stmt, for_clause, for_head;
 non terminal inc_dec_stmt, inc_dec;
 non terminal range_cl_head, range_cl,range_op;
@@ -205,7 +218,6 @@ non terminal defer_stmt;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
-//precedence right RPAREN;
 precedence left LPAREN;
 precedence left PIPEPIPE;
 precedence left ANDAND;
@@ -213,7 +225,6 @@ precedence left EQEQ, NOTEQ, LT, GT, LTEQ, GTEQ;
 precedence left PIPE, PLUS, MINUS, CIRCU;
 precedence left MULT, DIV, MOD, LSHIFT, RSHIFT, AND, ANDNOT;
 precedence left NOT, ARRLEFT;
-
 
 
   start with goal;
@@ -237,17 +248,57 @@ precedence left NOT, ARRLEFT;
   	
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declaration ::= FUNC IDENTIFIER LPAREN param_list RPAREN type_opt func_body;
-
-  func_body ::= block;
+  func_declaration ::= FUNC IDENTIFIER params type_opt func_body;
   
-  block ::= LBRACE Statements return_opt RBRACE;
+  type_opt ::= | type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
+  
+
+  func_body ::= block  ;
+  
+  block ::= LBRACE Statements RBRACE;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | defer_stmt | fall_stmt | goto_stmt | go_stmt | send_stmt | continue_stmt | break_stmt | label_stmt | expression | assignment | if_stmt | for_stmt;
+  Statement ::= 
+  	declaration | label_stmt | simple_stmt_b | goto_stmt | go_stmt | 
+  	defer_stmt | fall_stmt | block | return_stmt | select_stmt |
+  	continue_stmt | break_stmt | if_stmt | for_stmt | switch_stmt;
   
-  return_opt ::= RETURN expression |  ;
+  return_stmt ::= RETURN SEMICOLON | RETURN expression_list;
+  
+  
+  /* select */
+  
+  select_stmt ::= SELECT LBRACE select_cases RBRACE;
+  
+  select_cases ::= select_case COLON Statements select_cases | ;
+  
+  select_case ::= CASE expression_list range_op expression | CASE send_stmt | DEFAULT;
+  
+  /* select */
+  
+  
+  /* switch */
+	  switch_stmt_head ::= simple_stmt_b SEMICOLON ;
+	  
+	  switch_stmt ::= switch_stmt_expr | switch_stmt_type;
+	  switch_stmt_expr ::= SWITCH switch_stmt_expr_head LBRACE switch_stmt_expr_cases RBRACE;
+	  switch_stmt_expr_head ::=  switch_stmt_head expression | switch_stmt_head | expression | ;
+	  switch_stmt_expr_cases ::= switch_stmt_expr_case COLON Statements switch_stmt_expr_cases | ;
+	  switch_stmt_expr_case ::= CASE expression_list | DEFAULT;
+	  
+	  //TODO: Nao esta funcionando
+	  switch_stmt_type ::= SWITCH switch_stmt_type_head LBRACE switch_stmt_type_cases RBRACE;
+	  switch_stmt_type_head ::= switch_stmt_head switch_stmt_guard | switch_stmt_guard;
+	  switch_stmt_type_cases ::= switch_stmt_type_case COLON Statements switch_stmt_type_cases |;
+	  switch_stmt_type_case ::= CASE type_list | DEFAULT;
+	  switch_stmt_guard ::= 
+	 	primary_expression DOT LPAREN TYPE RPAREN;
+	 	
+		  		
+  
+  /* switch */
+  
     
   // Em go os tipos dos parametros devem ser explicitados em declarações de funcao, porem caso
   // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o 
@@ -261,26 +312,43 @@ precedence left NOT, ARRLEFT;
   
   ellipsis_opt ::= ELLIPSIS | ;
   
-  type_opt ::= | type;
-  
-  
   /* Types */
   
-  type ::= type_name | type_literal | LPAREN type RPAREN;
+  type ::= type_name | type_literal | LPAREN type RPAREN ;
   
-  type_literal ::= array_type | struct_type | pointer_type | function_type;
+  //sem ID e QUALIFIED_ID
+  type_b ::= type_literal | LPAREN type_b RPAREN;
+  
+  type_literal ::= 
+  	array_type | struct_type | pointer_type | 
+  	function_type | interface_type | map_type | 
+  	channel_type | slice_type;
+  	
+  slice_type ::= LBRACK RBRACK type;
     
   type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER;
+  
+  channel_type ::= CHAN channel_aux type | ARRLEFT CHAN type;
+  
+  channel_aux ::= | ARRLEFT;
   
   pointer_type ::= MULT type;
   
   function_type ::= FUNC signature;
   
+  map_type ::= MAP LBRACK type RBRACK type;
+  
+  interface_type ::= INTERFACE LBRACE method_specs RBRACE;
+  
+  method_specs ::= method_spec method_specs | ;
+  
+  method_spec ::= IDENTIFIER signature | type_name;
+  
   signature ::= params result_opt;
   
-  result ::= type;
+  result ::= type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
   
-  result_opt ::= result SEMICOLON | SEMICOLON;
+  result_opt ::= result | SEMICOLON;
   
   array_type ::=
   	LBRACK expression RBRACK type;
@@ -310,9 +378,30 @@ precedence left NOT, ARRLEFT;
   /* Types */
    
    
+   
 	
-  literal ::= INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL
-   | HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | STRING_LITERAL;
+  literal ::= 
+  	INTEGER_LITERAL | FLOATING_POINT_LITERAL | 
+  	BOOLEAN_LITERAL | CHARACTER_LITERAL |
+    HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | 
+    STRING_LITERAL | func_literal | composite_literal;
+    
+    
+   composite_literal ::= literal_type | literal_value;
+   
+   
+//   literal_type ::= type_b;
+   
+//   literal_value ::= LBRACE composite_element_list comma_opt RBRACE;
+   
+//   composite_element_list ::= composite_element | composite_element_list COMMA composite_element;
+   
+//   composite_key ::= IDENTIFIER | expression | literal_value;
+   
+//   composite_element ::= composite_key COLON | composite_key COLON expression | composite_key COLON literal_value;
+   
+   
+   func_literal ::= FUNC signature func_body;
   
   binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
   
@@ -343,7 +432,7 @@ precedence left NOT, ARRLEFT;
     
 	primary_expression index | 
     
-	primary_expression slice |
+	primary_expression slice_exp |
   	
 	primary_expression type_assertion |
   	
@@ -356,8 +445,10 @@ precedence left NOT, ARRLEFT;
 
 	
   args ::= 	
-  		LPAREN expression_list RPAREN |
+  		LPAREN args_aux RPAREN |
   		LPAREN RPAREN;
+  		
+  args_aux ::= expression_list | type_b COMMA expression_list;
 	
 	
   operand ::=   	
@@ -400,19 +491,21 @@ precedence left NOT, ARRLEFT;
   	IF if_head block |
   	IF if_head block else_stmt;
   	
-  if_head ::= simple_stmt expression | expression;
+  if_head ::= simple_stmt_complete SEMICOLON expression | expression;
   
   else_stmt ::= ELSE if_stmt | ELSE block;
   
   //TODO: adicionar inc dec stmt e short var decl
-  simple_stmt ::= simple_stmt_b SEMICOLON;
-  simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt;
-  
+  simple_stmt ::= simple_stmt_complete SEMICOLON;
+  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
+  simple_stmt_complete ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
   
   /* IF Statement */
   
 	
   /* Variable Declaration */
+  
+   short_var_decl ::= expression_list COLONEQ expression_list;
   
    var_decl ::= VAR var_spec | VAR LPAREN var_specs RPAREN;
    
@@ -450,7 +543,7 @@ precedence left NOT, ARRLEFT;
 	for_stmt ::= FOR for_head block;
 	for_head ::= | expression | for_clause | range_cl;
 	
-	for_clause ::= simple_stmt_b SEMICOLON simple_stmt_b SEMICOLON simple_stmt_b;
+	for_clause ::= simple_stmt_complete SEMICOLON simple_stmt_complete SEMICOLON simple_stmt_complete;
 	
 	/* For */	
 	
@@ -459,7 +552,7 @@ precedence left NOT, ARRLEFT;
 	range_cl ::= range_cl_head RANGE expression;
 	
 	range_cl_head ::= | expression_list range_op;
-	range_op ::= EQ | DIVEQ;
+	range_op ::= EQ | COLONEQ;
 	
 	/* Range Clause */
 	
@@ -505,6 +598,8 @@ precedence left NOT, ARRLEFT;
   expression_list ::= expression | expression_list COMMA expression;
   
   identifier_list ::= IDENTIFIER | identifier_list COMMA IDENTIFIER;
+  
+  type_list ::= type | type_list COMMA type;
  
   index ::= LBRACK expression RBRACK;
 
