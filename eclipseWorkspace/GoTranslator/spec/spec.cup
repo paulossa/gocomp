@@ -196,6 +196,7 @@ non terminal inc_dec_stmt, inc_dec;
 non terminal range_cl_head, range_cl,range_op;
 non terminal label_stmt, label, label_opt;
 non terminal continue_stmt;
+non terminal send_stmt;
 
 
 /* precedência de operadores, os de baixo tem maior precedência */
@@ -496,6 +497,10 @@ precedence left NOT, ARRLEFT;
 	
 	/* Continue Statement */
 	continue_stmt ::= CONTINUE label_opt;
+	/* Continue Statement */
+	
+	/* Continue Statement */
+	send_stmt ::= expression ARRLEFT expression;
 	/* Continue Statement */
 	
   expression_list_opt ::= | expression_list;

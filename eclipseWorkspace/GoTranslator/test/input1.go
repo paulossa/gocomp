@@ -49,6 +49,10 @@ func plus(j int, b int) int {
 		continue ;
 	}
 
+	a <- b
+
+	(a+3) <- 8 * 3
+
 	for ; a > b ; {
 
 	}
