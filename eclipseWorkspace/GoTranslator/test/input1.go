@@ -42,6 +42,8 @@ func plus(j int, b int) int {
 	}
 
 	for i := 0; i < 10; i++ {
+
+		L:
 		f(i)
 	}
 
@@ -51,7 +53,7 @@ func plus(j int, b int) int {
 
 	for {}
 
-	for i, s = range a {
+	for i, s := range a {
 		// type of i is int
 		// type of s is string
 		// s == a[i]

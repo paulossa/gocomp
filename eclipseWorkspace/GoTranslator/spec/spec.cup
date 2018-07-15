@@ -194,6 +194,7 @@ non terminal simple_stmt_b;
 non terminal for_stmt, for_clause, for_head;
 non terminal inc_dec_stmt, inc_dec;
 non terminal range_cl_head, range_cl,range_op;
+non terminal label_stmt, label;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -236,7 +237,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | expression | assignment | if_stmt | for_stmt;
+  Statement ::= declaration | label_stmt | expression | assignment | if_stmt | for_stmt;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -484,6 +485,12 @@ precedence left NOT, ARRLEFT;
 	inc_dec ::= PLUSPLUS | MINUSMINUS;
 	
 	/* INC_DEC */
+	
+	/* Label Statement */
+	
+	label_stmt ::= IDENTIFIER COLON Statement;
+	
+	/* Label Statement */
 	
   expression_list_opt ::= | expression_list;
 
