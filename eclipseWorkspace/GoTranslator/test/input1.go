@@ -15,6 +15,13 @@ type pessoa struct {
     z float64
 }
 
+const (
+	bit0, mask0 = 1 << iota, 1<<iota - 1  // bit0 == 1, mask0 == 0  (iota == 0)
+	bit1, mask1                           // bit1 == 2, mask1 == 1  (iota == 1)
+	_, _                                  //                        (iota == 2, unused)
+	bit3, mask3                          // bit3 == 8, mask3 == 7  (iota == 3)
+)
+
 type vazio struct {}
 
 type (
@@ -26,6 +33,35 @@ type (
 type NewMutex Mutex
 
 func plus(j int, b int) int {
+
+
+	a = a,b,c
+
+	for a > b {
+		x = a
+	}
+
+	for i := 0; i < 10; i++ {
+		f(i)
+	}
+
+	for ; a > b ; {
+
+	}
+
+	for {}
+
+	for i, s = range a {
+		// type of i is int
+		// type of s is string
+		// s == a[i]
+		g(i, s)
+	}
+
+	for key, val = range m {
+		h(key, val)
+	}
+
     var x int = 1
     var k, z float64 = -1, -2
     var(k uint)

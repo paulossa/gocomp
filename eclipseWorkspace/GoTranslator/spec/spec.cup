@@ -191,6 +191,9 @@ non terminal if_stmt, else_stmt;
 non terminal simple_stmt;
 non terminal if_head;
 non terminal simple_stmt_b;
+non terminal for_stmt, for_clause, for_head;
+non terminal inc_dec_stmt, inc_dec;
+non terminal range_cl_head, range_cl,range_op;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -233,7 +236,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | expression | assignment | if_stmt;
+  Statement ::= declaration | expression | assignment | if_stmt | for_stmt;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -417,7 +420,7 @@ precedence left NOT, ARRLEFT;
   
   //TODO: adicionar inc dec stmt e short var decl
   simple_stmt ::= simple_stmt_b SEMICOLON;
-  simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment;
+  simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt;
   
   
   /* IF Statement */
@@ -456,6 +459,31 @@ precedence left NOT, ARRLEFT;
   
   /* Type Declaration */
 	
+	
+	/* For */
+	
+	for_stmt ::= FOR for_head block;
+	for_head ::= | expression | for_clause | range_cl;
+	
+	for_clause ::= simple_stmt_b SEMICOLON simple_stmt_b SEMICOLON simple_stmt_b;
+	
+	/* For */	
+	
+	/* Range Clause */
+	
+	range_cl ::= range_cl_head RANGE expression;
+	
+	range_cl_head ::= | expression_list range_op;
+	range_op ::= EQ | DIVEQ;
+	
+	/* Range Clause */
+	
+	/* INC_DEC */
+	
+	inc_dec_stmt ::= expression inc_dec;
+	inc_dec ::= PLUSPLUS | MINUSMINUS;
+	
+	/* INC_DEC */
 	
   expression_list_opt ::= | expression_list;
 
