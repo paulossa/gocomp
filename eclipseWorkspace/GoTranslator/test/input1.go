@@ -49,9 +49,9 @@ func plus(j int, b int) int {
 		continue ;
 	}
 
-	a <- b
+	fallthrough
 
-	(a+3) <- 8 * 3
+	defer a
 
 	go a <- b
 

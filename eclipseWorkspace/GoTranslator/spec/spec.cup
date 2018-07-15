@@ -197,8 +197,10 @@ non terminal range_cl_head, range_cl,range_op;
 non terminal label_stmt, label, label_opt;
 non terminal continue_stmt;
 non terminal send_stmt;
-non terminal go_stmt;
+non terminal go_stmt, goto_stmt;
 non terminal break_stmt;
+non terminal fall_stmt;
+non terminal defer_stmt;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -241,7 +243,7 @@ precedence left NOT, ARRLEFT;
   
   Statements ::= | Statement Statements;
   
-  Statement ::= declaration | go_stmt | send_stmt | continue_stmt | break_stmt | label_stmt | expression | assignment | if_stmt | for_stmt;
+  Statement ::= declaration | defer_stmt | fall_stmt | goto_stmt | go_stmt | send_stmt | continue_stmt | break_stmt | label_stmt | expression | assignment | if_stmt | for_stmt;
   
   assignments_opt ::= | assignment assignments_opt;
   
@@ -504,9 +506,21 @@ precedence left NOT, ARRLEFT;
 	break_stmt ::= BREAK label_opt;
 	/* Break Statement */
 	
-	/* Continue Statement */
+	/* GOTO Statement */
+	goto_stmt ::= GOTO IDENTIFIER;
+	/* GOTO Statement */
+	
+	/* Send Statement */
 	send_stmt ::= expression ARRLEFT expression;
-	/* Continue Statement */
+	/* Send Statement */
+	
+	/* FALLTHROUGH Statement */
+	fall_stmt ::= FALLTHROUGH;
+	/* FALLTHROUGH Statement */
+	
+	/* DEFER Statement */
+	defer_stmt ::= DEFER expression;
+	/* DEFER Statement */
 	
 	go_stmt ::= GO expression;
 	
