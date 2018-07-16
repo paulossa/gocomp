@@ -76,24 +76,24 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
 	"short"														{ return symbol(sym.SHORT);                                         	}
 	"long"														{ return symbol(sym.LONG);                                         	}
 	"char"														{ return symbol(sym.CHAR);                                         	}
-	"complex64"													{ return symbol(sym.COMPLEX64);                                         	}	
+	"complex64"													{ return symbol(sym.COMPLEX64);                                         	}
 	"complex128"												{ return symbol(sym.COMPLEX128);                                         	}
 	"bool"														{ return symbol(sym.BOOL);                                         	}
-	"int"														{ System.out.println("found int"); return symbol(sym.INT);                                         	}
+	"int"														{  return symbol(sym.INT);                                         	}
 	"int8"														{ return symbol(sym.INT8);                                        	}
 	"int16"														{ return symbol(sym.INT16);                                       	}
 	"int32"														{ return symbol(sym.INT32);                                       	}
 	"int64"														{ return symbol(sym.INT64);                                       	}
 	"uint"														{ return symbol(sym.UINT);                                        	}
 	"uintptr"													{ return symbol(sym.UINTPTR);                                       }
-	"uint8"														{ return symbol(sym.UINT8);                                        	}	
+	"uint8"														{ return symbol(sym.UINT8);                                        	}
 	"uint16"													{ return symbol(sym.UINT16);                                        }
-	"uint32"													{ return symbol(sym.UINT32);                                        }    
-	"uint64"													{ return symbol(sym.UINT64);                                        }    
-	"float32"													{ return symbol(sym.FLOAT32);                                       }    
-	"float64"													{ return symbol(sym.FLOAT64);                                       }    
-    
-    
+	"uint32"													{ return symbol(sym.UINT32);                                        }
+	"uint64"													{ return symbol(sym.UINT64);                                        }
+	"float32"													{ return symbol(sym.FLOAT32);                                       }
+	"float64"													{ return symbol(sym.FLOAT64);                                       }
+
+
     /*KEYWORDS*/
 
     "break"                                                     { return symbol(sym.BREAK);                                         }
@@ -120,73 +120,73 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "for"                                                       { return symbol(sym.FOR);                                           }
     "import"                                                    { return symbol(sym.IMPORT);                                        }
     "return"                                                    { return symbol(sym.RETURN);                                        }
-    "var"                                                       { System.out.println(yytext()); return symbol(sym.VAR);                                           }
+    "var"                                                       { return symbol(sym.VAR);                                           }
 
     /*OPERATORS AND PUNCTUATION*/
 
 
-    "+"                                                         { System.out.println(yytext()); return symbol(sym.PLUS);       }
-    "&"                                                         { System.out.println(yytext()); return symbol(sym.AND);        }
-    "+= "                                                       { System.out.println(yytext()); return symbol(sym.PLUSEQ);     }
-    "&="                                                        { System.out.println(yytext()); return symbol(sym.ANDEQ);     }
-    "&&"                                                        { System.out.println(yytext()); return symbol(sym.ANDAND);      }
-    "=="                                                        { System.out.println(yytext()); return symbol(sym.EQEQ);       }
-    "!="                                                        { System.out.println(yytext()); return symbol(sym.NOTEQ);      }
-    "("                                                         { System.out.println(yytext()); return symbol(sym.LPAREN);     }
-    ")"                                                         { System.out.println(yytext()); return symbol(sym.RPAREN);     }
-    "-"                                                         { System.out.println(yytext()); return symbol(sym.MINUS);      }
-    "|"                                                         { System.out.println(yytext()); return symbol(sym.PIPE);       }
-    "-="                                                        { System.out.println(yytext()); return symbol(sym.MINUSEQ);    }
-    "|="                                                        { System.out.println(yytext()); return symbol(sym.PIPEEQ);     }
-    "||"                                                        { System.out.println(yytext()); return symbol(sym.PIPEPIPE);   }
-    "<"                                                         { System.out.println(yytext()); return symbol(sym.LT);         }
-    "<="                                                        { System.out.println(yytext()); return symbol(sym.LTEQ);       }
-    "["                                                         { System.out.println(yytext()); return symbol(sym.LBRACK);     }
-    "]"                                                         { System.out.println(yytext()); return symbol(sym.RBRACK);     }
-    "*"                                                         { System.out.println(yytext()); return symbol(sym.MULT);       }
-    "^"                                                         { System.out.println(yytext()); return symbol(sym.CIRCU);      }
-    "*="                                                        { System.out.println(yytext()); return symbol(sym.MULTEQ);     }
-    "^="                                                        { System.out.println(yytext()); return symbol(sym.CIRCUEQ);    }
-    "<-"                                                        { System.out.println(yytext()); return symbol(sym.ARRLEFT);    }
-    ">"                                                         { System.out.println(yytext()); return symbol(sym.GT);         }
-    ">="                                                        { System.out.println(yytext()); return symbol(sym.GTEQ);       }
-    "{"                                                         { System.out.println(yytext()); return symbol(sym.LBRACE);     }
-    "}"                                                         { System.out.println(yytext()); return symbol(sym.RBRACE);     }
-    "/"                                                         { System.out.println(yytext()); return symbol(sym.DIV);        }
-    "<<"                                                        { System.out.println(yytext()); return symbol(sym.LSHIFT);     }
-    "/="                                                        { System.out.println(yytext()); return symbol(sym.DIVEQ);      }
-    "<<="                                                       { System.out.println(yytext()); return symbol(sym.LSHIFTEQ);   }
-    "++"                                                        { System.out.println(yytext()); return symbol(sym.PLUSPLUS);   }
-    "="                                                         { System.out.println(yytext()); return symbol(sym.EQ);         }
-    ":="                                                        { System.out.println(yytext()); return symbol(sym.DIVEQ);      }
-    ","                                                         { System.out.println(yytext()); return symbol(sym.COMMA);   }
-    ";"                                                         { System.out.println(yytext()); return symbol(sym.SEMICOLON);  }
-    "%"                                                         { System.out.println(yytext()); return symbol(sym.MOD);        }
-    ">>"                                                        { System.out.println(yytext()); return symbol(sym.RSHIFT);     }
-    "%="                                                        { System.out.println(yytext()); return symbol(sym.MODEQ);      }
-    ">>="                                                       { System.out.println(yytext()); return symbol(sym.RSHIFTEQ);   }
-    "--"                                                        { System.out.println(yytext()); return symbol(sym.MINUSMINUS); }
-    "!"                                                         { System.out.println(yytext()); return symbol(sym.NOT);        }
-    "..."                                                       { System.out.println(yytext()); return symbol(sym.ELLIPSIS);   }
-    "."                                                         { System.out.println(yytext()); return symbol(sym.DOT);        }
-    ":"                                                         { System.out.println(yytext()); return symbol(sym.COLON);      }
-    "&^ "                                                       { System.out.println(yytext()); return symbol(sym.ANDNOT);     }
-    "&^="                                                       { System.out.println(yytext()); return symbol(sym.ANDNOTEQ);   }
+    "+"                                                         { return symbol(sym.PLUS);       }
+    "&"                                                         { return symbol(sym.AND);        }
+    "+= "                                                       { return symbol(sym.PLUSEQ);     }
+    "&="                                                        { return symbol(sym.ANDEQ);     }
+    "&&"                                                        { return symbol(sym.ANDAND);      }
+    "=="                                                        { return symbol(sym.EQEQ);       }
+    "!="                                                        { return symbol(sym.NOTEQ);      }
+    "("                                                         { return symbol(sym.LPAREN);     }
+    ")"                                                         { return symbol(sym.RPAREN);     }
+    "-"                                                         { return symbol(sym.MINUS);      }
+    "|"                                                         { return symbol(sym.PIPE);       }
+    "-="                                                        { return symbol(sym.MINUSEQ);    }
+    "|="                                                        { return symbol(sym.PIPEEQ);     }
+    "||"                                                        { return symbol(sym.PIPEPIPE);   }
+    "<"                                                         { return symbol(sym.LT);         }
+    "<="                                                        { return symbol(sym.LTEQ);       }
+    "["                                                         { return symbol(sym.LBRACK);     }
+    "]"                                                         { return symbol(sym.RBRACK);     }
+    "*"                                                         { return symbol(sym.MULT);       }
+    "^"                                                         { return symbol(sym.CIRCU);      }
+    "*="                                                        { return symbol(sym.MULTEQ);     }
+    "^="                                                        { return symbol(sym.CIRCUEQ);    }
+    "<-"                                                        { return symbol(sym.ARRLEFT);    }
+    ">"                                                         { return symbol(sym.GT);         }
+    ">="                                                        { return symbol(sym.GTEQ);       }
+    "{"                                                         { return symbol(sym.LBRACE);     }
+    "}"                                                         { return symbol(sym.RBRACE);     }
+    "/"                                                         { return symbol(sym.DIV);        }
+    "<<"                                                        { return symbol(sym.LSHIFT);     }
+    "/="                                                        { return symbol(sym.DIVEQ);      }
+    "<<="                                                       { return symbol(sym.LSHIFTEQ);   }
+    "++"                                                        { return symbol(sym.PLUSPLUS);   }
+    "="                                                         { return symbol(sym.EQ);         }
+    ":="                                                        { return symbol(sym.DIVEQ);      }
+    ","                                                         { return symbol(sym.COMMA);   }
+    ";"                                                         { return symbol(sym.SEMICOLON);  }
+    "%"                                                         { return symbol(sym.MOD);        }
+    ">>"                                                        { return symbol(sym.RSHIFT);     }
+    "%="                                                        { return symbol(sym.MODEQ);      }
+    ">>="                                                       { return symbol(sym.RSHIFTEQ);   }
+    "--"                                                        { return symbol(sym.MINUSMINUS); }
+    "!"                                                         { return symbol(sym.NOT);        }
+    "..."                                                       { return symbol(sym.ELLIPSIS);   }
+    "."                                                         { return symbol(sym.DOT);        }
+    ":"                                                         { return symbol(sym.COLON);      }
+    "&^ "                                                       { return symbol(sym.ANDNOT);     }
+    "&^="                                                       { return symbol(sym.ANDNOTEQ);   }
 
     /*TOKENS*/
 
-    "/*"[^*/]*"*/"{line_terminator}?                            { System.out.println("Found traditional comment: " + yytext()); yyline++; yybegin(0);}
+    "/*"[^*/]*"*/"{line_terminator}?                            {  yyline++; yybegin(0);}
     {comment}                                                   { /* ignore */ }
     "//"[^\n]*{line_terminator}?                                { /* ignore */ }
-    {decimal_literal}                                           { System.out.println("decimal: " + yytext());  return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
-    {float_literal}                                             { System.out.println("float literal:" + yytext()); return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
-    {hex_literal}                                               { System.out.println("hex literal:" + yytext()); return symbol(sym.HEX_LITERAL, yytext());}
+    {decimal_literal}                                           { return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
+    {float_literal}                                             { return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
+    {hex_literal}                                               { return symbol(sym.HEX_LITERAL, yytext());}
     {white_space}                                               { /* Ignore */}
-    {identifier}		                                        { System.out.println("found id: " + yytext()); return symbol(sym.IDENTIFIER, yytext()); }
-    {identifier}"."{identifier}									{ System.out.println("found qualified id: " + yytext()); return symbol(sym.QUALIFIED_IDENTIFIER, yytext()); }
-    {string_literal}                                            { System.out.println("string: " + yytext()); return symbol(sym.STRING_LITERAL, yytext()); }
-    {imaginary_literal}                                         { System.out.println("Imaginary: " + yytext()); return symbol(sym.IMAGINARY_LITERAL, yytext()); }
-    {octal_literal}                                             { System.out.println("octal: " + yytext()); return symbol(sym.OCTAL_LITERAL, yytext()); }
+    {identifier}		                                        {  return symbol(sym.IDENTIFIER, yytext()); }
+    {identifier}"."{identifier}									{ return symbol(sym.QUALIFIED_IDENTIFIER, yytext()); }
+    {string_literal}                                            { return symbol(sym.STRING_LITERAL, yytext()); }
+    {imaginary_literal}                                         { return symbol(sym.IMAGINARY_LITERAL, yytext()); }
+    {octal_literal}                                             { return symbol(sym.OCTAL_LITERAL, yytext()); }
 }
 
 [^]|\n                             { throw new RuntimeException("Erro léxico caractere ilegal:" + yytext() +

@@ -1,6 +1,7 @@
 package go.main;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 
 import java_cup.runtime.Symbol;
@@ -10,12 +11,8 @@ public class Main {
 	private static final int MIN_INPUT_FILES = 1;
 
 	public static void main(String[] args) {
-		startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go");
-		if (args.length < MIN_INPUT_FILES) {
-			printHowTo();
-		} else {
-			for (String filePath : args) { startCompilationFor("/Users/lucasdiniz/Desktop/gocomp/eclipseWorkspace/GoTranslator/test/input1.go"); }
-		}
+		for (int i = 2; i <= 2; i++) 
+			startCompilationFor("test/input" + i + ".go");
 	}
 
 	private static void startCompilationFor(String filePath) {

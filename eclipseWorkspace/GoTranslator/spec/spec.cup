@@ -209,8 +209,7 @@ precedence left NOT, ARRLEFT;
   goal ::= compilation_unit:c {: RESULT = c; :};
 
   compilation_unit ::=
-  		package_declaration_opt top_import_decl
-      {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :};
+  		package_declaration_opt top_import_decl;
       
   
   top_import_decl ::=  | import_declaration top_import_decl | top_level_decl top_import_decl;
@@ -256,7 +255,7 @@ precedence left NOT, ARRLEFT;
   // O tipo do parametro pode ser uma classe definida pelo usuario, 
   //entao qualquer IDENTIFIER é sintaticamente válido como tipo.
  
-  typed_param ::= IDENTIFIER type;
+  typed_param ::= IDENTIFIER type {: Semantic.getInstance().hw(); :};
   
   type_opt ::= | type;
   
@@ -430,12 +429,12 @@ precedence left NOT, ARRLEFT;
    var_specs ::= var_spec | var_spec var_specs ;
    
    var_spec ::= 
-   		identifier_list var_spec_aux;
+   		identifier_list:il var_spec_aux:saux {: System.out.println(Semantic.getInstance().lastListSize == 2); :};
    		
    var_spec_aux ::=
-   		 type |
-   		 EQ expression_list |
-   		 type EQ expression_list;
+   		 type 						{: Semantic.getInstance();		:}	|
+   		 EQ expression_list:el 		{: Semantic.getInstance().hw(); :}	|
+   		 type EQ expression_list 	{: Semantic.getInstance().hw(); :};
    		
   /* Variable Declaration */
   
@@ -459,9 +458,11 @@ precedence left NOT, ARRLEFT;
 	
   expression_list_opt ::= | expression_list;
 
-  expression_list ::= expression | expression_list COMMA expression;
+  expression_list ::= expression:e  {: Semantic.getInstance().addExp(e); :}
+  					| expression_list COMMA expression;
   
-  identifier_list ::= IDENTIFIER | identifier_list COMMA IDENTIFIER;
+  identifier_list ::= identifier_list COMMA IDENTIFIER:id {:Semantic.getInstance().finishList(id); :} 
+  					| 	IDENTIFIER:id {: Semantic.getInstance().addToList(id); :} ;
  
   index ::= LBRACK expression RBRACK;
 
