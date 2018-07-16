@@ -1148,7 +1148,7 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 136: break;
           case 33: 
-            { return symbol(sym.IF);
+            { System.out.println(yytext()); return symbol(sym.IF);
             }
           case 137: break;
           case 34: 
@@ -1304,7 +1304,7 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 175: break;
           case 72: 
-            { return symbol(sym.TYPE);
+            { System.out.println(yytext()); return symbol(sym.TYPE);
             }
           case 176: break;
           case 73: 

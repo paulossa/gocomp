@@ -121,6 +121,7 @@ terminal ARRLEFT;
 terminal INFUNCEQ;
 terminal ELLIPSIS;
 
+terminal COLONEQ; //Short var decl
 terminal EQEQ, NOTEQ; // equality_expression
 terminal AND; // and_expression
 terminal ANDNOT;
@@ -148,12 +149,15 @@ terminal java.lang.String QUALIFIED_IDENTIFIER;
 // 19.2) The Syntactic Grammar
 non terminal goal;
 non terminal operand, operandName;
-non terminal assignment, assignments_opt;
-non terminal expression, unary_expression, primary_expression, expressions_opt, return_opt;
-non terminal index, slice, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
+non terminal assignment;
+non terminal expression, unary_expression, primary_expression, primary_expression_b, return_opt;
+non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
 
 // 19.3) Lexical Structure
-non terminal literal;
+non terminal
+	literal, func_literal, composite_literal,
+	literal_type, literal_value, composite_element,
+	composite_element_list, composite_key ;
 non terminal operator, unary_operator;
 non terminal binary_operator;
 non terminal relational_operator;
@@ -162,25 +166,28 @@ non terminal mult_operator;
 non terminal assign_operator;
 
 // 19.4) Types, Values, and Variables
-non terminal type, type_name, type_literal, type_opt, primitive_type, numeric_type;
-non terminal integral_type, floating_point_type;
-non terminal slice_type, map_type, channel_type;
+non terminal type, type_name, type_literal, type_opt;
+non terminal slice_type, map_type, channel_type, channel_aux;
 non terminal function_type;
-non terminal class_type, interface_type;
-non terminal struct_type, field_declaration, embedded_field, asterisk_opt, tag_opt, field_declarations;
+non terminal signature, result, result_opt;
+non terminal class_type, interface_type, method_spec, method_specs;
+non terminal struct_type, field_declaration, embedded_field, comma_opt, tag_opt, field_declarations;
 non terminal array_type;
+non terminal pointer_type;
 
 non terminal compilation_unit;
 
-non terminal package_declaration_opt, package_declaration, package_name;
+non terminal package_declaration_opt, package_name;
 non terminal import_declaration;
 non terminal func_declaration, func_body;
+non terminal type_b;
 non terminal Statements, Statement;
 non terminal top_level_decl;
-non terminal untyped_params, untyped_param, typed_params, typed_param, params_opt;
-non terminal args;
+non terminal params, param_list, ellipsis_opt;
+non terminal args, args_aux;
 non terminal declaration;
-non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
+non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl;
+non terminal short_var_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
 non terminal block;
 non terminal EOF;
 non terminal const_spec;
@@ -189,8 +196,25 @@ non terminal top_import_decl;
 non terminal const_spec_b;
 non terminal if_stmt, else_stmt;
 non terminal simple_stmt;
+non terminal
+	type_list, switch_stmt_head,
+	switch_stmt, switch_stmt_expr, switch_stmt_type, switch_stmt_guard,
+	switch_stmt_type_head, switch_stmt_type_cases, switch_stmt_type_case,
+	switch_stmt_expr_head, switch_stmt_expr_case, switch_stmt_expr_cases;
+non terminal select_stmt, select_cases, select_case, return_stmt;
 non terminal if_head;
 non terminal simple_stmt_b;
+non terminal simple_stmt_complete;
+non terminal for_stmt, for_clause, for_head;
+non terminal inc_dec_stmt, inc_dec;
+non terminal range_cl_head, range_cl,range_op;
+non terminal label_stmt, label, label_opt;
+non terminal continue_stmt;
+non terminal send_stmt;
+non terminal go_stmt, goto_stmt;
+non terminal break_stmt;
+non terminal fall_stmt;
+non terminal defer_stmt;
 
 /* precedência de operadores, os de baixo tem maior precedência */
 
@@ -203,271 +227,389 @@ precedence left MULT, DIV, MOD, LSHIFT, RSHIFT, AND, ANDNOT;
 precedence left NOT, ARRLEFT;
 
 
-
   start with goal;
-  
+
   goal ::= compilation_unit:c {: RESULT = c; :};
 
   compilation_unit ::=
   		package_declaration_opt top_import_decl;
-      
-  
+
+
   top_import_decl ::=  | import_declaration top_import_decl | top_level_decl top_import_decl;
-  
+
   top_level_decl ::= declaration | func_declaration | method_decl;
-  
+
   declaration ::=  const_decl | var_decl | type_decl;
 
   package_declaration_opt ::= | PACKAGE package_name;
-  
+
   package_name ::= IDENTIFIER;
-  	
+
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declaration ::= FUNC IDENTIFIER LPAREN params_opt RPAREN type_opt func_body;
+  func_declaration ::= FUNC IDENTIFIER params type_opt func_body;
 
-  func_body ::= block;
-  
-  block ::= LBRACE Statements return_opt RBRACE;
-  
+  type_opt ::= | type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
+
+
+  func_body ::= block  ;
+
+  block ::= LBRACE Statements RBRACE;
+
   Statements ::= | Statement Statements;
-  
-  Statement ::= declaration | expression | assignment | if_stmt;
-  
-  assignments_opt ::= | assignment assignments_opt;
-  
-  expressions_opt ::= | expressions_opt expression;
-  
-  return_opt ::= RETURN expression |  ;
-    
+
+  Statement ::=
+  	declaration | label_stmt | simple_stmt_b | goto_stmt | go_stmt |
+  	defer_stmt | fall_stmt | block | return_stmt | select_stmt |
+  	continue_stmt | break_stmt | if_stmt | for_stmt | switch_stmt;
+
+  return_stmt ::= RETURN SEMICOLON | RETURN expression_list;
+
+
+  /* select */
+
+  select_stmt ::= SELECT LBRACE select_cases RBRACE;
+
+  select_cases ::= select_case COLON Statements select_cases | ;
+
+  select_case ::= CASE expression_list range_op expression | CASE send_stmt | DEFAULT;
+
+  /* select */
+
+
+  /* switch */
+	  switch_stmt_head ::= simple_stmt_b SEMICOLON ;
+
+	  switch_stmt ::= switch_stmt_expr | switch_stmt_type;
+	  switch_stmt_expr ::= SWITCH switch_stmt_expr_head LBRACE switch_stmt_expr_cases RBRACE;
+	  switch_stmt_expr_head ::=  switch_stmt_head expression | switch_stmt_head | expression | ;
+	  switch_stmt_expr_cases ::= switch_stmt_expr_case COLON Statements switch_stmt_expr_cases | ;
+	  switch_stmt_expr_case ::= CASE expression_list | DEFAULT;
+
+	  //TODO: Nao esta funcionando
+	  switch_stmt_type ::= SWITCH switch_stmt_type_head LBRACE switch_stmt_type_cases RBRACE;
+	  switch_stmt_type_head ::= switch_stmt_head switch_stmt_guard | switch_stmt_guard;
+	  switch_stmt_type_cases ::= switch_stmt_type_case COLON Statements switch_stmt_type_cases |;
+	  switch_stmt_type_case ::= CASE type_list | DEFAULT;
+	  switch_stmt_guard ::=
+	 	primary_expression DOT LPAREN TYPE RPAREN;
+
+
+
+  /* switch */
+
+
   // Em go os tipos dos parametros devem ser explicitados em declarações de funcao, porem caso
-  // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o 
+  // tenhamos varios parametros seguidos do mesmo tipo, podemos omitir o tipo deixando apenas o
   // ultimo parametro com o tipo explicito.
-  
-  params_opt ::=  | typed_params | untyped_params COMMA typed_param;
-  
-  untyped_params ::= untyped_param | untyped_params COMMA untyped_param;
-  
-  typed_params ::= typed_param | typed_params COMMA typed_param;
- 
-  untyped_param ::= IDENTIFIER;
-  
-  // O tipo do parametro pode ser uma classe definida pelo usuario, 
+
+  params ::= LPAREN param_list RPAREN;
+
+  param_list ::= identifier_list ellipsis_opt type comma_opt param_list | ;
+
+  comma_opt ::= COMMA | ;
+
+  // O tipo do parametro pode ser uma classe definida pelo usuario,
   //entao qualquer IDENTIFIER é sintaticamente válido como tipo.
- 
+
   typed_param ::= IDENTIFIER type {: Semantic.getInstance().hw(); :};
-  
-  type_opt ::= | type;
-  
-  
-  
+  ellipsis_opt ::= ELLIPSIS | ;
+
   /* Types */
-  
-  type ::= type_name | type_literal | LPAREN type RPAREN;
-  
-  type_literal ::= array_type | struct_type;
-    
-  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER | primitive_type | numeric_type;
-  
+
+  type ::= type_name | type_literal | LPAREN type RPAREN ;
+
+  //sem ID e QUALIFIED_ID
+  type_b ::= type_literal | LPAREN type_b RPAREN;
+
+  type_literal ::=
+  	array_type | struct_type | pointer_type |
+  	function_type | interface_type | map_type |
+  	channel_type | slice_type;
+
+  slice_type ::= LBRACK RBRACK type;
+
+  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER;
+
+  channel_type ::= CHAN channel_aux type | ARRLEFT CHAN type;
+
+  channel_aux ::= | ARRLEFT;
+
+  pointer_type ::= MULT type;
+
+  function_type ::= FUNC signature;
+
+  map_type ::= MAP LBRACK type RBRACK type;
+
+  interface_type ::= INTERFACE LBRACE method_specs RBRACE;
+
+  method_specs ::= method_spec method_specs | ;
+
+  method_spec ::= IDENTIFIER signature | type_name;
+
+  signature ::= params result_opt;
+
+  result ::= type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
+
+  result_opt ::= result | SEMICOLON;
+
   array_type ::=
   	LBRACK expression RBRACK type;
-  	
+
    /* Struct type */
-  	
+
 	  struct_type ::=
 	  	STRUCT LBRACE field_declarations RBRACE;
-	  	
-	  field_declarations ::= field_declarations field_declaration tag_opt | ;
-	  
-	  field_declaration ::= 
-	  	IDENTIFIER embedded_field | 
-	  	QUALIFIED_IDENTIFIER | 
-	  	//IDENTIFIER | 
-	  	primitive_type | 
-	  	numeric_type |
-	  	MULT QUALIFIED_IDENTIFIER | 
-	  	MULT IDENTIFIER | 
-	  	MULT primitive_type | 
-	  	MULT numeric_type;
-	  	
-  	  embedded_field ::= COMMA IDENTIFIER embedded_field type |;
-	  	
-	  tag_opt ::= | STRING_LITERAL;
-	  
-	  //embedded_field ::= MULT type_name | type_name;
-	  
-   /* Struct type */
-  
-  primitive_type ::= BOOL;
-  
-  numeric_type ::= floating_point_type | integral_type;
-  	
-  floating_point_type ::= FLOAT32 | FLOAT64;
- 
-  integral_type ::= COMPLEX64 | COMPLEX128 | 
-	RUNE | BYTE | SHORT | UINTPTR | UINT8 | UINT16 | 
-	UINT32 | UINT64 | UINT | INT8 | INT16 | INT32 | 
-	INT64 | INT | LONG | CHAR;
-	
-  /* Types */
-   
-   
-	
-  literal ::= INTEGER_LITERAL | FLOATING_POINT_LITERAL | BOOLEAN_LITERAL | CHARACTER_LITERAL
-   | HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | STRING_LITERAL;
-  	
-  operator ::= binary_operator | relational_operator | add_operator | mult_operator;
-  
-  binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
-  
-  add_operator ::= PIPE | PLUS | MINUS | CIRCU;
-  
-  relational_operator ::= EQEQ | NOTEQ | LT | GT | LTEQ | GTEQ;
-  
-  unary_operator ::= PLUS | MINUS | NOT | CIRCU | MULT | AND | ARRLEFT;
-  
-  mult_operator ::= MULT | DIV | MOD | LSHIFT | RSHIFT | AND | ANDNOT;
-  
-  assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
-  	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ; 
-   
-  expression ::= unary_expression | expression binary_operator expression;
-  
-  unary_expression ::= primary_expression | unary_operator unary_expression;
-  
-  primary_expression ::= 
-  
-	operand |
-	   
-	conversion |
-    
-    method_name |
-    
-	primary_expression selector | 
-    
-	primary_expression index | 
-    
-	primary_expression slice |
-  	
-	primary_expression type_assertion |
-  	
-	primary_expression args;
-  		
-	
-  	/* Algumas regras estão comentadas para evitar ambiguidade 
-  	   pois é possível derivá-las de outra forma */
-  	  	
 
-	
-  args ::= 	
-  		LPAREN expression_list RPAREN |
+	  field_declarations ::= field_declarations field_declaration tag_opt | ;
+
+	  field_declaration ::=
+	  	IDENTIFIER embedded_field |
+	  	QUALIFIED_IDENTIFIER |
+	  	//IDENTIFIER |
+	  	MULT QUALIFIED_IDENTIFIER |
+	  	MULT IDENTIFIER;
+
+  	  embedded_field ::= | COMMA IDENTIFIER embedded_field type;
+
+	  tag_opt ::= | STRING_LITERAL;
+
+	  //embedded_field ::= MULT type_name | type_name;
+
+   /* Struct type */
+
+  /* Types */
+
+
+
+
+  literal ::=
+  	INTEGER_LITERAL | FLOATING_POINT_LITERAL |
+  	BOOLEAN_LITERAL | CHARACTER_LITERAL |
+    HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL |
+    STRING_LITERAL | func_literal | composite_literal;
+
+
+   composite_literal ::= literal_type | literal_value;
+
+
+//   literal_type ::= type_b;
+
+//   literal_value ::= LBRACE composite_element_list comma_opt RBRACE;
+
+//   composite_element_list ::= composite_element | composite_element_list COMMA composite_element;
+
+//   composite_key ::= IDENTIFIER | expression | literal_value;
+
+//   composite_element ::= composite_key COLON | composite_key COLON expression | composite_key COLON literal_value;
+
+
+   func_literal ::= FUNC signature func_body;
+
+  binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
+
+  add_operator ::= PIPE | PLUS | MINUS | CIRCU;
+
+  relational_operator ::= EQEQ | NOTEQ | LT | GT | LTEQ | GTEQ;
+
+  unary_operator ::= PLUS | MINUS | NOT | CIRCU | MULT | AND | ARRLEFT;
+
+  mult_operator ::= MULT | DIV | MOD | LSHIFT | RSHIFT | AND | ANDNOT;
+
+  assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
+  	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ;
+
+  expression ::= unary_expression | expression binary_operator expression;
+
+  unary_expression ::= primary_expression | unary_operator unary_expression;
+
+  primary_expression ::=
+
+	operand |
+
+	conversion |
+
+    method_name |
+
+	primary_expression selector |
+
+	primary_expression index |
+
+	primary_expression slice_exp |
+
+	primary_expression type_assertion |
+
+	primary_expression args;
+
+
+  	/* Algumas regras estão comentadas para evitar ambiguidade
+  	   pois é possível derivá-las de outra forma */
+
+
+
+  args ::=
+  		LPAREN args_aux RPAREN |
   		LPAREN RPAREN;
-	
-	
-  operand ::=   	
+
+  args_aux ::= expression_list | type_b COMMA expression_list;
+
+
+  operand ::=
 	  	literal |
-	    IDENTIFIER | 
-	    QUALIFIED_IDENTIFIER | 
+	    IDENTIFIER |
+	    QUALIFIED_IDENTIFIER |
 	    LPAREN expression RPAREN ;
-	    
-	    
-  conversion ::=		
-  		//IDENTIFIER LPAREN expression RPAREN |
-		primitive_type LPAREN expression RPAREN | 
-		numeric_type LPAREN expression RPAREN ;
-		
-		
+
+
+  //conversion ::=
+  		//IDENTIFIER LPAREN expression RPAREN;
+
+
   selector ::= DOT IDENTIFIER;
-  
-  
-  method_name ::= 	    
-	    //IDENTIFIER DOT IDENTIFIER |
-	    primitive_type DOT IDENTIFIER |
-	    numeric_type DOT IDENTIFIER ;
-	    
-	    
-  type_assertion ::= 
-  		DOT LPAREN IDENTIFIER RPAREN | 
-  		DOT LPAREN primitive_type RPAREN | 
-  		DOT LPAREN numeric_type RPAREN;
-  	
-	
-	
+
+
+  //method_name ::=
+	    //IDENTIFIER DOT IDENTIFIER;
+
+
+  type_assertion ::=
+  		DOT LPAREN IDENTIFIER RPAREN;
+
+
+
   /* Const Declaration */
 
   const_decl ::= CONST const_spec | CONST LPAREN const_spec_b RPAREN;
 
   const_spec ::= identifier_list type EQ expression_list | identifier_list EQ expression_list;
-  
+
   const_spec_b ::= | identifier_list const_spec_b | identifier_list EQ expression_list const_spec_b;
 
   /* Const Declaration */
-	
+
 
   /* IF Statement */
-  
-  if_stmt ::= 
+
+  if_stmt ::=
   	IF if_head block |
   	IF if_head block else_stmt;
-  	
-  if_head ::= simple_stmt expression | expression;
-  
+
+  if_head ::= simple_stmt_complete SEMICOLON expression | expression;
+
   else_stmt ::= ELSE if_stmt | ELSE block;
-  
+
   //TODO: adicionar inc dec stmt e short var decl
-  simple_stmt ::= simple_stmt_b SEMICOLON;
-  simple_stmt_b ::=  | expression | expression ARRLEFT expression | assignment;
-  
-  
+  simple_stmt ::= simple_stmt_complete SEMICOLON;
+  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
+  simple_stmt_complete ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
+
   /* IF Statement */
-  
-	
+
+
   /* Variable Declaration */
-  
+
+   short_var_decl ::= expression_list COLONEQ expression_list;
+
    var_decl ::= VAR var_spec | VAR LPAREN var_specs RPAREN;
-   
+
    var_specs ::= var_spec | var_spec var_specs ;
-   
-   var_spec ::= 
+
+   var_spec ::=
    		identifier_list:il var_spec_aux:saux {: System.out.println(Semantic.getInstance().lastListSize == 2); :};
-   		
+
    var_spec_aux ::=
    		 type 						{: Semantic.getInstance();		:}	|
    		 EQ expression_list:el 		{: Semantic.getInstance().hw(); :}	|
    		 type EQ expression_list 	{: Semantic.getInstance().hw(); :};
-   		
+
   /* Variable Declaration */
-  
+
 
   /* Type Declaration */
-  
+
     type_decl ::= TYPE type_decl_aux;
-    
+
     type_decl_aux ::= type_spec | LPAREN type_specs RPAREN;
-    
+
     type_spec ::= alias_decl | type_def;
-    
+
     type_specs ::= type_spec| type_spec type_specs;
-    
+
     type_def ::= IDENTIFIER type;
-    
+
     alias_decl ::= IDENTIFIER EQ type;
-  
+
   /* Type Declaration */
-	
-	
-  expression_list_opt ::= | expression_list;
+
+	/* For */
+
+	for_stmt ::= FOR for_head block;
+	for_head ::= | expression | for_clause | range_cl;
+
+	for_clause ::= simple_stmt_complete SEMICOLON simple_stmt_complete SEMICOLON simple_stmt_complete;
+
+	/* For */
+
+	/* Range Clause */
+
+	range_cl ::= range_cl_head RANGE expression;
+
+	range_cl_head ::= | expression_list range_op;
+	range_op ::= EQ | COLONEQ;
+
+	/* Range Clause */
+
+	/* INC_DEC */
+
+	inc_dec_stmt ::= expression inc_dec;
+	inc_dec ::= PLUSPLUS | MINUSMINUS;
+
+	/* INC_DEC */
+
+	/* Label Statement */
+
+	label_stmt ::= IDENTIFIER COLON Statement;
+	label_opt ::= IDENTIFIER | SEMICOLON;
+	/* Label Statement */
+
+	/* Continue Statement */
+	continue_stmt ::= CONTINUE label_opt;
+	/* Continue Statement */
+
+	/* Break Statement */
+	break_stmt ::= BREAK label_opt;
+	/* Break Statement */
+
+	/* GOTO Statement */
+	goto_stmt ::= GOTO IDENTIFIER;
+	/* GOTO Statement */
+
+	/* Send Statement */
+	send_stmt ::= expression ARRLEFT expression;
+	/* Send Statement */
+
+	/* FALLTHROUGH Statement */
+	fall_stmt ::= FALLTHROUGH;
+	/* FALLTHROUGH Statement */
+
+	/* DEFER Statement */
+	defer_stmt ::= DEFER expression;
+	/* DEFER Statement */
+
+	go_stmt ::= GO expression;
 
   expression_list ::= expression:e  {: Semantic.getInstance().addExp(e); :}
   					| expression_list COMMA expression;
-  
-  identifier_list ::= identifier_list COMMA IDENTIFIER:id {:Semantic.getInstance().finishList(id); :} 
+
+
+  identifier_list ::= identifier_list COMMA IDENTIFIER:id {:Semantic.getInstance().finishList(id); :}
   					| 	IDENTIFIER:id {: Semantic.getInstance().addToList(id); :} ;
- 
+
+  type_list ::= type | type_list COMMA type;
+
   index ::= LBRACK expression RBRACK;
 
-  slice ::= LBRACK expression COLON expression RBRACK | 
+  slice ::= LBRACK expression COLON expression RBRACK |
   	LBRACK expression COLON expression COLON expression RBRACK;
-  
+
   assignment ::= expression_list assign_operator expression_list;
-   
