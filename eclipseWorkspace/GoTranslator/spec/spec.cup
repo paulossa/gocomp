@@ -135,10 +135,10 @@ terminal LSHIFTEQ, RSHIFTEQ, URSHIFTEQ; // assignment_operator
 terminal ANDEQ, ANDNOTEQ, XOREQ, OREQ; // assignment_operator
 
 terminal java.lang.Number INTEGER_LITERAL;
-terminal java.lang.Float FLOATING_POINT_LITERAL;
-terminal java.lang.Boolean BOOLEAN_LITERAL;
-terminal java.lang.Character CHARACTER_LITERAL;
-terminal java.lang.Character HEX_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.Number BOOLEAN_LITERAL;
+terminal java.lang.Number CHARACTER_LITERAL;
+terminal java.lang.Number HEX_LITERAL;
 
 terminal java.lang.String IMAGINARY_LITERAL;
 terminal java.lang.String OCTAL_LITERAL;
@@ -151,7 +151,7 @@ non terminal goal;
 non terminal operand, operandName;
 non terminal assignment;
 non terminal expression, unary_expression, primary_expression, primary_expression_b, return_opt;
-non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, expression_list_opt, conversion;
+non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, identifier_list_aux, conversion;
 
 // 19.3) Lexical Structure
 non terminal 
@@ -233,7 +233,7 @@ precedence left NOT, ARRLEFT;
 
   compilation_unit ::=
   		package_declaration_opt top_import_decl
-      {: RESULT = "cunitcode"; System.out.println("compilation_unit matched");  :};
+      {: Semantic.getInstance().hw(); :};
       
   
   top_import_decl ::=  | import_declaration top_import_decl | top_level_decl top_import_decl;
@@ -251,8 +251,7 @@ precedence left NOT, ARRLEFT;
   func_declaration ::= FUNC IDENTIFIER params type_opt func_body;
   
   type_opt ::= | type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
-  
-
+ 
   func_body ::= block  ;
   
   block ::= LBRACE Statements RBRACE;
@@ -314,31 +313,43 @@ precedence left NOT, ARRLEFT;
   
   /* Types */
   
-  type ::= type_name | type_literal | LPAREN type RPAREN ;
+  type ::= 
+  	type_name: o {: RESULT = o; :} | 
+  	type_literal: o {: RESULT = o; :} | 
+  	LPAREN type:o RPAREN {: RESULT = o; :} ;
   
   //sem ID e QUALIFIED_ID
   type_b ::= type_literal | LPAREN type_b RPAREN;
   
   type_literal ::= 
-  	array_type | struct_type | pointer_type | 
-  	function_type | interface_type | map_type | 
-  	channel_type | slice_type;
+  	array_type: o {: RESULT = o; :} | 
+  	struct_type: o {: RESULT = o; :} | 
+  	pointer_type: o {: RESULT = o; :} | 
+  	function_type: o {: RESULT = o; :} | 
+  	interface_type: o {: RESULT = o; :} | 
+  	map_type: o {: RESULT = o; :} | 
+  	channel_type: o {: RESULT = o; :} | 
+  	slice_type: o {: RESULT = o; :};
   	
-  slice_type ::= LBRACK RBRACK type;
+  slice_type ::= LBRACK RBRACK type: o {: RESULT = o; :};
     
-  type_name ::= QUALIFIED_IDENTIFIER | IDENTIFIER;
+  type_name ::= 
+  	QUALIFIED_IDENTIFIER: o {: RESULT = new Type(o); :} | 
+  	IDENTIFIER: o {: RESULT = new Type(o); :};
   
-  channel_type ::= CHAN channel_aux type | ARRLEFT CHAN type;
+  channel_type ::= 
+  CHAN channel_aux type: o {: RESULT = o; :} | 
+  ARRLEFT CHAN type: o {: RESULT = o; :};
   
   channel_aux ::= | ARRLEFT;
   
-  pointer_type ::= MULT type;
+  pointer_type ::= MULT type: o {: RESULT = o; :};
   
-  function_type ::= FUNC signature;
+  function_type ::= FUNC signature {: RESULT = new Type("function"); :};
   
-  map_type ::= MAP LBRACK type RBRACK type;
+  map_type ::= MAP LBRACK type RBRACK type: o {: RESULT = o; :};
   
-  interface_type ::= INTERFACE LBRACE method_specs RBRACE;
+  interface_type ::= INTERFACE LBRACE method_specs RBRACE: o {: RESULT = new Type("interface"); :};
   
   method_specs ::= method_spec method_specs | ;
   
@@ -351,7 +362,7 @@ precedence left NOT, ARRLEFT;
   result_opt ::= result | SEMICOLON;
   
   array_type ::=
-  	LBRACK expression RBRACK type;
+  	LBRACK expression RBRACK type: o {: RESULT = o; :};
   	
    /* Struct type */
   	
@@ -381,10 +392,16 @@ precedence left NOT, ARRLEFT;
    
 	
   literal ::= 
-  	INTEGER_LITERAL | FLOATING_POINT_LITERAL | 
-  	BOOLEAN_LITERAL | CHARACTER_LITERAL |
-    HEX_LITERAL | IMAGINARY_LITERAL | OCTAL_LITERAL | 
-    STRING_LITERAL | func_literal | composite_literal;
+  	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :} | 
+  	FLOATING_POINT_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :}| 
+  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :} | 
+  	CHARACTER_LITERAL: l {: RESULT = l; :}|
+    HEX_LITERAL : l {: RESULT = l; :} | 
+    IMAGINARY_LITERAL: l {: RESULT = l; :}| 
+    OCTAL_LITERAL: l {: RESULT = l; :}| 
+    STRING_LITERAL: l {: RESULT = l; :}| 
+    func_literal : l {: RESULT = l; :}| 
+    composite_literal;
     
     
    composite_literal ::= literal_type | literal_value;
@@ -401,7 +418,7 @@ precedence left NOT, ARRLEFT;
 //   composite_element ::= composite_key COLON | composite_key COLON expression | composite_key COLON literal_value;
    
    
-   func_literal ::= FUNC signature func_body;
+  func_literal ::= FUNC signature func_body;
   
   binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
   
@@ -416,27 +433,33 @@ precedence left NOT, ARRLEFT;
   assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
   	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ; 
    
-  expression ::= unary_expression | expression binary_operator expression;
+  expression ::= unary_expression:o {: RESULT = o; :}  | 
   
-  unary_expression ::= primary_expression | unary_operator unary_expression;
+  expression:e1 binary_operator:o expression:e2 {: 
+	RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2,"+");
+  :} ;
+  
+  unary_expression ::= 
+  	primary_expression:o {: RESULT = o; :}  | 
+  	unary_operator:op unary_expression:o {: RESULT = Semantic.getInstance().getResultingExp(o, ""); :} ;
   
   primary_expression ::= 
   
-	operand |
+	operand:o {: RESULT = o; :} |
 	   
-	conversion |
+	conversion:o {: RESULT = o; :}  |
     
-    method_name |
+    method_name:o {: RESULT = o; :}  |
     
-	primary_expression selector | 
+	primary_expression:p selector:o {: RESULT = o; :}  | 
     
-	primary_expression index | 
+	primary_expression:p index:o {: RESULT = o; :}  | 
     
-	primary_expression slice_exp |
+	primary_expression:p slice_exp:o {: RESULT = o; :}  |
   	
-	primary_expression type_assertion |
+	primary_expression:p type_assertion:o {: RESULT = o;   System.out.println("parte 1 = " + o + "parte 2" + p);:}  |
   	
-	primary_expression args;
+	primary_expression:p args:o {: RESULT = o;:} ;
   		
 	
   	/* Algumas regras estão comentadas para evitar ambiguidade 
@@ -452,9 +475,13 @@ precedence left NOT, ARRLEFT;
 	
 	
   operand ::=   	
-	  	literal |
-	    IDENTIFIER | 
-	    QUALIFIED_IDENTIFIER | 
+	  	literal : o {: RESULT = o; :} | 
+	    IDENTIFIER : o {: 
+			Semantic.getInstance().checkIfVariableDeclared(o);
+			Type t = Semantic.getInstance().getVariableType(o);
+			RESULT = new Identifier(t, o, null);
+		:}| 
+	    QUALIFIED_IDENTIFIER : o {: RESULT = o; :}| 
 	    LPAREN expression RPAREN ;
 	    
 	    
@@ -470,7 +497,7 @@ precedence left NOT, ARRLEFT;
 	    
 	    
   type_assertion ::= 
-  		DOT LPAREN IDENTIFIER RPAREN;
+  		DOT LPAREN IDENTIFIER:o RPAREN {: RESULT = o; :};
   	
 	
 	
@@ -507,17 +534,37 @@ precedence left NOT, ARRLEFT;
   
    short_var_decl ::= expression_list COLONEQ expression_list;
   
-   var_decl ::= VAR var_spec | VAR LPAREN var_specs RPAREN;
+   var_decl ::= 
+   	VAR var_spec: o {: RESULT = o; :} | 
+   	VAR LPAREN var_specs:o RPAREN {: RESULT = o; :};
    
-   var_specs ::= var_spec | var_spec var_specs ;
+   var_specs ::= 
+  	var_spec: o {: RESULT = o; :} | 
+  	var_spec:o var_specs {: RESULT = o; :} ;
    
    var_spec ::= 
-   		identifier_list var_spec_aux;
+   		identifier_list:o
+   		var_spec_aux:v {: 
+			Semantic.getInstance().endReadIdList();
+			System.out.println(o);
+			//for (String id: (ArrayList<String>)o){
+				Semantic.getInstance().assignVar((String)o, v);	
+			//}
+			//((Identifier)o).setType((Type)v);
+			//Semantic.getInstance().declareVar((String)o, (Type)v);
+			RESULT = v; 
+		:};
    		
    var_spec_aux ::=
-   		 type |
-   		 EQ expression_list |
-   		 type EQ expression_list;
+   		 type: o {: Semantic.getInstance().convertIdList((Type) o); RESULT = o; :} |
+   		 EQ expression_list:o {: 
+			//Semantic.getInstance().convertIdList(); 
+			RESULT = o; 
+		:} |
+   		 type:o EQ expression_list:e {: 
+			Semantic.getInstance().convertIdList((Type)o); 
+			RESULT = Semantic.getInstance().getValue(e); ; 
+		:};
    		
   /* Variable Declaration */
   
@@ -595,9 +642,26 @@ precedence left NOT, ARRLEFT;
 	
 	go_stmt ::= GO expression;
 
-  expression_list ::= expression | expression_list COMMA expression;
+  expression_list ::= 
+  	expression: e {: 	
+		System.out.println(e);
+		Semantic.getInstance().readExpList((Expression)e);
+		RESULT = e;
+	:} | 
+  	expression_list:l COMMA expression: e {: 
+		RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
+
+	:};
   
-  identifier_list ::= IDENTIFIER | identifier_list COMMA IDENTIFIER;
+  identifier_list ::= 
+  	IDENTIFIER: i {: 
+		Semantic.getInstance().readIdList(i);
+		RESULT = i;
+	:} | 
+  	identifier_list:l COMMA IDENTIFIER: i {: 
+		RESULT = Semantic.getInstance().readIdList(i).clone();
+	:};
+  
   
   type_list ::= type | type_list COMMA type;
  
