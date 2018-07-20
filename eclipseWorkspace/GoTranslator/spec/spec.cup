@@ -3,6 +3,7 @@
 /* Import the class java_cup.runtime.*  */
 package go.core;
 import java_cup.runtime.*;
+import java.util.ArrayList;
 
 init with {: Semantic.parser = this;              :};
 /* Parser code to change the way the parser reports errors (include
@@ -151,12 +152,12 @@ non terminal goal;
 non terminal operand, operandName;
 non terminal assignment;
 non terminal expression, unary_expression, primary_expression, primary_expression_b, return_opt;
-non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, identifier_list_aux, conversion;
+non terminal index, slice_exp, selector, method_name, type_assertion, expression_list, expression_list_aux, identifier_list_aux, conversion;
 
 // 19.3) Lexical Structure
 non terminal 
 	literal, func_literal, composite_literal, 
-	literal_type, literal_value, composite_element, 
+	literal_type, literal_value,
 	composite_element_list, composite_key ;
 non terminal operator, unary_operator;
 non terminal binary_operator;
@@ -393,7 +394,7 @@ precedence left NOT, ARRLEFT;
 	
   literal ::= 
   	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l); :} | 
-  	FLOATING_POINT_LITERAL: l {: RESULT = l; :}| 
+  	FLOATING_POINT_LITERAL: l {: RESULT = new Literal(new Type("float"), l); :}| 
   	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("bool"), l); :} | 
   	CHARACTER_LITERAL: l {: RESULT = l; :}|
     HEX_LITERAL : l {: RESULT = l; :} | 
@@ -457,8 +458,19 @@ precedence left NOT, ARRLEFT;
   AND :o {: RESULT = o; :} | 
   ANDNOT :o {: RESULT = o; :};
   
-  assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
-  	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ; 
+  assign_operator ::= 
+  	MULTEQ:o {: RESULT = o; :}   | 
+  	DIVEQ:o {: RESULT = o; :}   | 
+  	MODEQ:o {: RESULT = o; :}   | 
+  	LSHIFTEQ:o {: RESULT = o; :}   | 
+  	RSHIFTEQ:o {: RESULT = o; :}   | 
+  	ANDEQ:o {: RESULT = o; :}   | 
+  	ANDNOTEQ:o {: RESULT = o; :}   |
+  	PIPEEQ:o {: RESULT = o; :}   | 
+  	PLUSEQ:o {: RESULT = o; :}   | 
+  	MINUSEQ:o {: RESULT = o; :}   | 
+  	CIRCUEQ:o {: RESULT = o; :}   | 
+  	EQ:o {: RESULT = o; :}  ; 
    
   expression ::= unary_expression:o {: RESULT = o; :}  | 
   
@@ -589,25 +601,33 @@ precedence left NOT, ARRLEFT;
    		identifier_list:o
    		var_spec_aux:v {: 
 			if(v == null){
+				Semantic.getInstance().endReadIdList();
+				//Semantic.getInstance().endReadExpList();
 				RESULT = v;
 			}
 
 			else {
 				Semantic.getInstance().endReadIdList();
-				Semantic.getInstance().endReadExpList();
+				//Semantic.getInstance().endReadExpList();
 				RESULT = v; 
 			}
 		:};
    		
    var_spec_aux ::=
    		 type: o {: 
-			Semantic.getInstance().convertIdList((Type) o); RESULT = o; 
-		 :} |
-   		 EQ expression_list:o {: 
+			Semantic.getInstance().convertIdList((Type) o); 
 			RESULT = o; 
+		 :} |
+   		 EQ expression_list:o {:
+			if(o == null) {
+				RESULT = o;
+			} 
+			else {
+				Semantic.getInstance().convertIdList(o);  
+				RESULT = o; 
+			}
 		:} |
    		 type:o EQ expression_list:e {:
-			System.out.println(e); 
 			if(e == null){
 				RESULT = e;
 			}
@@ -694,19 +714,35 @@ precedence left NOT, ARRLEFT;
 	go_stmt ::= GO expression;
 
   expression_list ::= 
-  	expression: e {: 
+  	expression:e expression_list_aux:c {: 
 		if(e == null){
 			RESULT = e;
 		}	
-		else RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
-	:} | 
-  	expression_list:l COMMA expression: e {: 
-		if(e == null){
-			RESULT = null;
-		}	
-		else RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
-
-	:};
+		else {
+			if(c == null){
+				ArrayList<Expression> res = new ArrayList<Expression>();
+				res.add(0, (Expression)e);
+				RESULT = res;
+			}
+			else {
+				((ArrayList<Expression>)c).add(0, (Expression) e);
+				RESULT = c;
+			}
+		}
+	:} ;
+	
+	expression_list_aux ::= 
+		COMMA expression:e expression_list_aux: c {:
+			if(c == null){
+				ArrayList<Expression> res = new ArrayList<Expression>();
+				res.add(0, (Expression)e);
+				RESULT = res;
+			}
+			else {
+				((ArrayList<Expression>)c).add(0, (Expression) e);
+				RESULT = c;
+			}
+		:} | ;
   
   identifier_list ::= 
   	IDENTIFIER: i {: 
@@ -725,5 +761,10 @@ precedence left NOT, ARRLEFT;
   slice ::= LBRACK expression COLON expression RBRACK | 
   	LBRACK expression COLON expression COLON expression RBRACK;
   
-  assignment ::= expression_list assign_operator expression_list;
+  assignment ::= 
+  	expression_list:e1 assign_operator:op expression_list:e2 {:
+		if(e1 != null && e2 != null){
+			Semantic.getInstance().checkAssignment(e1, e2, op);
+		}
+	:};
    

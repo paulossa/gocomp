@@ -31,6 +31,11 @@ public class Expression {
 		
 		throw new Exception("lel");
 	}
+	
+	//Returns true if expression is deep. i.e.: Two or more expressions nested.
+	public boolean isDeep() {
+		return right != null;
+	}
 
 	public ValuedEntity getLeft() {
 		return left;

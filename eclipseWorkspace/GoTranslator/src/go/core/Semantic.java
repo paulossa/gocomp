@@ -96,6 +96,42 @@ public class Semantic {
 
 	}
 	
+	
+	public static void checkAssignment(Object expList1, Object expList2, Object op) throws Exception {
+		
+		int size1 = ((ArrayList<Expression>) expList1).size();
+		int size2 = ((ArrayList<Expression>) expList2).size();
+		
+		if(size1 != size2) {
+			throw new Exception("Identifier list and expression list have different sizes");
+		}
+		
+		for(int i = size1 - 1 ; i >= 0 ; i--) {
+			Expression exp1 = ((ArrayList<Expression>) expList1).get(i);
+			Expression exp2 = ((ArrayList<Expression>) expList2).get(i);
+			
+			if(!exp1.getType().equals(exp2.getType())) {
+				throw new Exception("Expected " + exp1.getType() + " but got " + exp2.getType() + " at position " + (i - size1 + 1) + " of assignment list");
+			}
+			
+			if(!(exp1.getLeft() instanceof Identifier) || exp1.isDeep()) {
+				throw new Exception("Expected identifier at position " + (i - size1 + 1) + " of left side of assignment.");
+			}
+			
+			if(!(exp2.getLeft() instanceof ValuedEntity)) {
+				throw new Exception("Expected identifier or literal at position " + (i - size1 + 1) + " of right side of assignment.");
+			}
+			
+//			System.out.println(
+//					"ST " +
+//					(((Identifier)exp1.getLeft()).getName()) +
+//					", " + (exp2.getLeft().getValue()))
+//			;
+		}
+		
+//		((ArrayList<Expression>) expList2).get(0).setOp((String) op);
+	}
+	
 	//  Não faz sentido expandir as expressoes
 	//	public static void assignVar(String id, Object val) {
 	//		System.out.println("atribuiu: " + val + " a variavel: " + id);
@@ -132,22 +168,18 @@ public class Semantic {
 	
 	public static void convertIdList(Type actualType, Object expList) throws Exception {
 		
-//		System.out.println(auxIdList.size());
-//		System.out.println(((ArrayList<Expression>) expList).size());
-		
 		if(auxIdList.size() != ((ArrayList<Expression>) expList).size()) {
 			throw new Exception("Semantic error: Cannot assign identifier list to expression list of different size");
 		}
+		
+		System.out.println(expList);
 		
 		if(expList instanceof ArrayList<?>) {
 			
 			for(int i = 0; i < ((ArrayList<Expression>) expList).size() ; i++) {
 				
 				Expression exp = ((ArrayList<Expression>) expList).get(i);
-				
-//				System.out.println(actualType);
-//				System.out.println(exp.getType());
-//				
+		
 				if(!actualType.equals(exp.getType())) {
 					throw new Exception(
 						"Identifier and Expression lists have different types: " +
@@ -158,7 +190,29 @@ public class Semantic {
 					);
 				}
 				
-				else varTypes.put(auxIdList.get(i), actualType);
+				else declareVar(auxIdList.get(i), actualType);
+				
+			}
+		
+		}
+	}
+	
+	
+	public static void convertIdList(Object expList) throws Exception {
+		
+		if(auxIdList.size() != ((ArrayList<Expression>) expList).size()) {
+			throw new Exception("Semantic error: Cannot assign identifier list to expression list of different size");
+		}
+		
+		
+		if(expList instanceof ArrayList<?>) {
+			
+			for(int i = 0; i < ((ArrayList<Expression>) expList).size() ; i++) {
+				
+				Expression exp = ((ArrayList<Expression>) expList).get(i);
+					
+				declareVar(auxIdList.get(i), exp.getType());
+				
 			}
 		
 		}
@@ -181,7 +235,7 @@ public class Semantic {
 //					}
 //				}
 				
-				if(!done) varTypes.put(key, actualType);
+				if(!done) declareVar(key, actualType);
 			}
 		}
 	}
