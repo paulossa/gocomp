@@ -7,24 +7,14 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.HashMap;
 
-//import go.symbol.core.Case;
-//import go.symbol.core.Default;
-//import go.symbol.core.Expression;
-//import go.symbol.core.Function;
-//import go.symbol.core.Identifier;
-//import go.symbol.core.Operation;
-//import go.symbol.core.Program;
-//import go.symbol.core.Register;
-//import go.symbol.core.ScopedEntity;
-//import go.symbol.core.Switch;
-//import go.symbol.core.SwitchCase;
-//import go.symbol.core.Type;
-//import go.symbol.core.Variable;
-//import go.symbol.util.SemanticException;
 
 public class Semantic {
+	
+	private static int GLOBAL_SCOPE = 1;
+	public static int currentScope = 1;
 
 	public static Syntactic parser;
+	public static Lexical lex;
 	
 	public int lastListSize = 0;
 	
@@ -71,31 +61,9 @@ public class Semantic {
 			};
 	
 	private int sec = 0;
-	public static ArrayList<String> variaveis = new ArrayList<String>();
-	public static HashMap<String, Type> varTypes = new HashMap<String, Type>();
-	public static HashMap<String, Object> varValues = new HashMap<String, Object>();
-	public static ArrayList<String> auxIdList = new ArrayList<String>();
-	public static ArrayList<Expression> auxExpList = new ArrayList<Expression>();
-	
+	public static ArrayList<Identifier> variaveis = new ArrayList<Identifier>();
 	
 	private static Semantic sAnalysis;
-	
-	
-	public static Number getValue(Object exp) throws Exception {
-		if(exp instanceof Expression) {
-			return ((Expression) exp).getValue();
-		}
-		else if(exp instanceof Literal) {
-			return (Number)((Literal) exp).getValue();
-		} 
-		else if(exp instanceof Identifier) {
-			String id = ((Identifier) exp).getName();
-			return (Number)varValues.get(id);
-		} 
-		else return (Number)exp;
-
-	}
-	
 	
 	public static void checkAssignment(Object expList1, Object expList2, Object op) throws Exception {
 		
@@ -105,6 +73,7 @@ public class Semantic {
 		if(size1 != size2) {
 			throw new Exception("Identifier list and expression list have different sizes");
 		}
+	
 		
 		for(int i = size1 - 1 ; i >= 0 ; i--) {
 			Expression exp1 = ((ArrayList<Expression>) expList1).get(i);
@@ -122,151 +91,89 @@ public class Semantic {
 				throw new Exception("Expected identifier or literal at position " + (i - size1 + 1) + " of right side of assignment.");
 			}
 			
-//			System.out.println(
-//					"ST " +
-//					(((Identifier)exp1.getLeft()).getName()) +
-//					", " + (exp2.getLeft().getValue()))
-//			;
 		}
 		
-//		((ArrayList<Expression>) expList2).get(0).setOp((String) op);
-	}
-	
-	//  Não faz sentido expandir as expressoes
-	//	public static void assignVar(String id, Object val) {
-	//		System.out.println("atribuiu: " + val + " a variavel: " + id);
-	//		varValues.put(id, val);
-	//	}
-	
-	
-	public static ArrayList<String> readIdList(String id) throws Exception {
-		if(!isVarAlreadyDeclared(id)){
-			auxIdList.add(id);
-			declareVar(id, new Type("id_list_process"));
-		}
-		return auxIdList;
-	}
-	
-	public static ArrayList<Expression> readExpList(Expression e) throws Exception {
-		auxExpList.add(e);
-		return auxExpList;
-	}
-	
-	public static void endReadExpList() throws Exception {
-		if(auxExpList.size() == 0) {
-			throw new Exception("Impossible to finish reading empty id list");
-		}
-		auxExpList.clear();
-	}
-	
-	public static void endReadIdList() throws Exception {
-		if(auxIdList.size() == 0) {
-			throw new Exception("Impossible to finish reading empty id list");
-		}
-		auxIdList.clear();
-	}
-	
-	public static void convertIdList(Type actualType, Object expList) throws Exception {
-		
-		if(auxIdList.size() != ((ArrayList<Expression>) expList).size()) {
-			throw new Exception("Semantic error: Cannot assign identifier list to expression list of different size");
-		}
-		
-		System.out.println(expList);
-		
-		if(expList instanceof ArrayList<?>) {
-			
-			for(int i = 0; i < ((ArrayList<Expression>) expList).size() ; i++) {
-				
-				Expression exp = ((ArrayList<Expression>) expList).get(i);
-		
-				if(!actualType.equals(exp.getType())) {
-					throw new Exception(
-						"Identifier and Expression lists have different types: " +
-						actualType +
-						" and " + 
-						exp.getType() +
-						" at position " + i
-					);
-				}
-				
-				else declareVar(auxIdList.get(i), actualType);
-				
-			}
-		
-		}
 	}
 	
 	
-	public static void convertIdList(Object expList) throws Exception {
+	public static void checkTypeExpressionList(Type t, ArrayList<Expression> ar) throws Exception {
 		
-		if(auxIdList.size() != ((ArrayList<Expression>) expList).size()) {
-			throw new Exception("Semantic error: Cannot assign identifier list to expression list of different size");
-		}
-		
-		
-		if(expList instanceof ArrayList<?>) {
-			
-			for(int i = 0; i < ((ArrayList<Expression>) expList).size() ; i++) {
-				
-				Expression exp = ((ArrayList<Expression>) expList).get(i);
-					
-				declareVar(auxIdList.get(i), exp.getType());
-				
-			}
-		
-		}
-	}
-	
-	
-	public static void convertIdList(Type actualType) {
-		
-		for(String key: varTypes.keySet()) {
-			
-			if(varTypes.get(key).getTypeName().equals("id_list_process")) {
-				
-				boolean done = false;
-				
-				//cast implicito
-//				for(String basicType: NUMERIC_TYPES) {
-//					if(basicType.equals(actualType.getTypeName())) {
-//						done = true;
-//						varTypes.put(key, new Type("number"));
-//					}
-//				}
-				
-				if(!done) declareVar(key, actualType);
+		for(int i = 0 ; i < ar.size(); i++) {
+			Expression exp = ar.get(i);
+			if(!exp.getType().equals(t)) {
+				throw new Exception(lex.curLine + " Semantic error: Expected type " + t + " but got " + exp.getType() + " at position " + i + " of expression list");
 			}
 		}
 	}
-
-
-	
-	public static boolean isVarAlreadyDeclared(String id) throws Exception {
-		if(varTypes.containsKey(id)) throw new Exception("Semantic error: var " + id + " already declared.");
-		return varTypes.containsKey(id);
-	}
 	
 	
-	public static Type getVariableType(String id) {
-		return varTypes.get(id);
-	}
-	
-	
-	
-	public static void declareVar(Object id, Type varType) {
-		if(id instanceof String) {
-//			System.out.println("declaring " + (String)id + " of type " + varType.getTypeName());
-			variaveis.add((String)id);
-			varTypes.put((String)id, varType);
+	public static void isVarAlreadyDeclared(Identifier id) throws Exception {
+//		System.out.println(id);
+//		System.out.println(variaveis);
+//		
+		for(Identifier i: variaveis) {
+			if(i.getName().equals(id.getName()) && (i.getScope() == currentScope || i.getScope() == GLOBAL_SCOPE)) {
+				throw new Exception(lex.curLine + " Semantic error: var " + id + " already declared.");
+			}
 		}
 
+	}
+	
+	
+	public static Identifier getIdByName(String id) throws Exception {
+		for(Identifier i: variaveis) {
+			if(i.getName().equals(id) && (i.getScope() == currentScope || i.getScope() == GLOBAL_SCOPE)) {
+				return i;
+			}
+		}
+		
+		throw new Exception(lex.curLine + " Semantic error: Variable " + id + " not declared in current or global scope.");
+	}
+	
+	
+	public static void declareExpIdList(ArrayList<Expression> v, ArrayList<Identifier> o) throws Exception {
+
+		if(o.size() != v.size())
+		{
+			throw new Exception(lex.curLine + " Semantic error: Identifier list and expression list have different sizes.");
+		}
+
+		int listSize = v.size();
+
+		for(int i = 0; i < listSize ; i++){
+			Expression e = v.get(i);	
+			Identifier id = o.get(i);		
+			id.setType(e.getType());
+			
+			isVarAlreadyDeclared(id);
+
+			declareVar(id, e.getType());
+//			System.out.println(id.getName() + " = " + e.getType());
+		}
+		
+	}
+	
+	
+	public static void declareIdList(Type t, ArrayList<Identifier> ar) throws Exception {
+		for(int i = 0 ; i < ar.size() ; i++) {
+			Identifier id = ar.get(i);
+			id.setType(t);
+			isVarAlreadyDeclared(id);
+			declareVar(id, t);
+		}
+	}
+	
+	
+	public static void declareVar(Identifier id, Type varType) {
+//			System.out.println("declaring " + id + " of type " + varType.getTypeName());
+		id.setType(varType);
+		variaveis.add(id);
 	}
 	
 
 	public static Expression getResultingExp(Object o, String op) {
 		if(o instanceof ValuedEntity) {
-			return new Expression((ValuedEntity) o, null, op);
+			return new Expression((ValuedEntity) o, null, op, currentScope);
 		}
 		
 		
@@ -286,15 +193,6 @@ public class Semantic {
 		}
 	}
 	
-	public static void checkIfVariableDeclared(String id) throws Exception {
-		if(!variaveis.contains(id)) {
-			throw new Exception("Semantic error: Variable " + id + " not declared.");
-		}
-		else if(varTypes.get(id).getTypeName().equals("id_list_process")) {
-			throw new Exception("Semantic error: Variable " + id + " not declared.");
-		}
-	}
-	
 	public static Expression checkExpressionTypes(Object left, Object right, String op) throws Exception {
 		
 		
@@ -307,7 +205,7 @@ public class Semantic {
 					((Expression) right).getType()
 				);
 			}
-			return new Expression(((ValuedEntity) left), ((Expression) right),op);
+			return new Expression(((ValuedEntity) left), ((Expression) right), op, currentScope);
 		}
 		
 		if(left instanceof Expression && right instanceof Expression) {
@@ -334,9 +232,10 @@ public class Semantic {
 				);
 			}
 			
-			return new Expression(((ValuedEntity) left), new Expression(((ValuedEntity) right), null, null), op);
+			return new Expression(((ValuedEntity) left), new Expression(((ValuedEntity) right), null, null, currentScope), op, currentScope);
 		}
 		System.out.println("WARN: Expressão não tratada semanticamente");
+		
 		return null;
 	}
 

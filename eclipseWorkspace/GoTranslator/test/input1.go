@@ -1,56 +1,27 @@
 package main
-
 import "fmt"
-
-// const a int = xxxx + yyy
-
-// var x *[4]int = 2
-
-// var a [5]int
-
-// func sum(nums ...int) {
-//     fmt.Print(nums, " ")
-//     total := 0
-//     for _.(int), num := range nums {
-//         total += num
-//     }
-//     fmt.Println(total)
-// }
+// func semCorpo(x int) int{} 
+var x int = 10
 
 func main() {
+    var a,b,semCorpo = "kkk", "kk", 2
+    var c = x + 10
+    // var x,y int = 2, 3 + 10 + 15 * 7 - 10
+}
 
-    // var a int = 3 - 3 + 2 * 3 / 1
-
-    // Variadic functions can be called in the usual way
-    // with individual arguments.
-    // sum(1, 2)
-    // sum(1, 2, 3)
-
-    var a,b,c = "kkk", "kk", 2
-    c = 1
-
-    // var z, k int = 1 + 2.4, 2 - 1
-
-    // var w, m int = 1.0 + 3, 5.0 + 1
-    // If you already have multiple args in a slice,
-    // apply them to a variadic function using
-    // `func(slice...)` like this.
-    //nums := []int{1, 2, 3, 4} // TODO: Composite literal
-    // sum(nums...)
+func x() {
+    var a,b,semCorpo = "a", "b", "c"
+    var x,y int = 2, 3 + 10 + 15 * 7 - 10
+    // var y string = "kkk"
 }
 
 
-// // Go has built-in support for _multiple return values_.
-// // This feature is used often in idiomatic Go, for example
-// // to return both result and error values from a function.
 
-// // The `(int, int)` in this function signature shows that
-// // the function returns 2 `int`s.
 // func vals() (int, int) {
 //     return 3, 7
 // }
 
-// func semCorpo(x int) int{} 
+
 
 // func main() {
 
@@ -73,11 +44,7 @@ func main() {
 // var x chan (<-chan int)   // can only be used to receive ints
 
 
-// var x [32]byte
-// var x [2*N] struct { x, y int32 }
-// var x [1000]*float64
-// var x [3][5]int
-// var x [2][2][2]float64  // same as [2]([2]([2]float64))
+// same as [2]([2]([2]float64))
 
 // type action func(a, b, x int, c int, k ...float64,) int
 

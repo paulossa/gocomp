@@ -1,13 +1,14 @@
 package go.core;
 
-public class Expression {
+public class Expression extends ScopedEntity {
 	
 	private Type type;
 	private ValuedEntity left;
 	private Expression right;
 	private String op;
 	
-	public Expression(ValuedEntity left, Expression right, String op) {
+	public Expression(ValuedEntity left, Expression right, String op, int scope) {
+		super(scope);
 		this.type = left.getType();
 		this.left = left;
 		this.right = right;

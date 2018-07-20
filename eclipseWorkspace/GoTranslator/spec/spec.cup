@@ -189,10 +189,10 @@ non terminal args, args_aux;
 non terminal declaration;
 non terminal const_decl, type_decl, type_decl_aux, type_spec, type_specs, alias_decl;
 non terminal short_var_decl, type_def, var_decl, var_specs, var_spec, var_spec_aux, method_decl;
-non terminal block;
+non terminal block, block_end, block_begin;
 non terminal EOF;
 non terminal const_spec;
-non terminal identifier_list;
+non terminal identifier_list, identifier_list_exp;
 non terminal top_import_decl;
 non terminal const_spec_b;
 non terminal if_stmt, else_stmt;
@@ -251,11 +251,15 @@ precedence left NOT, ARRLEFT;
 
   func_declaration ::= FUNC IDENTIFIER params type_opt func_body;
   
-  type_opt ::= | type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
+  type_opt ::= | type_b | LPAREN identifier_list RPAREN {: :} | IDENTIFIER | QUALIFIED_IDENTIFIER;
  
   func_body ::= block  ;
   
-  block ::= LBRACE Statements RBRACE;
+  block_begin ::= LBRACE {: Semantic.getInstance().currentScope += 1; :};
+  
+  block ::= block_begin Statements block_end {: :};
+  
+  block_end ::= RBRACE {: :};
   
   Statements ::= | Statement Statements;
   
@@ -306,7 +310,7 @@ precedence left NOT, ARRLEFT;
   
   params ::= LPAREN param_list RPAREN;
   
-  param_list ::= identifier_list ellipsis_opt type comma_opt param_list | ;
+  param_list ::= identifier_list ellipsis_opt type comma_opt param_list {: :} | ;
   
   comma_opt ::= COMMA | ;
   
@@ -358,7 +362,7 @@ precedence left NOT, ARRLEFT;
   
   signature ::= params result_opt;
   
-  result ::= type_b | LPAREN identifier_list RPAREN | IDENTIFIER | QUALIFIED_IDENTIFIER;
+  result ::= type_b | LPAREN identifier_list RPAREN {: :} | IDENTIFIER | QUALIFIED_IDENTIFIER;
   
   result_opt ::= result | SEMICOLON;
   
@@ -393,14 +397,14 @@ precedence left NOT, ARRLEFT;
    
 	
   literal ::= 
-  	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l); :} | 
-  	FLOATING_POINT_LITERAL: l {: RESULT = new Literal(new Type("float"), l); :}| 
-  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("bool"), l); :} | 
+  	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l, Semantic.getInstance().currentScope); :} | 
+  	FLOATING_POINT_LITERAL: l {: RESULT = l; :}| 
+  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("bool"), l, Semantic.getInstance().currentScope); :} | 
   	CHARACTER_LITERAL: l {: RESULT = l; :}|
     HEX_LITERAL : l {: RESULT = l; :} | 
     IMAGINARY_LITERAL: l {: RESULT = l; :}| 
-    OCTAL_LITERAL: l {: RESULT = l; :}| 
-    STRING_LITERAL: l {: RESULT = new Literal(new Type("string"), l); :}| 
+    OCTAL_LITERAL: l {: RESULT = new Literal(new Type("int"), l, Semantic.getInstance().currentScope); :}| 
+    STRING_LITERAL: l {: RESULT = new Literal(new Type("string"), l, Semantic.getInstance().currentScope); :}| 
     func_literal : l {: RESULT = l; :}| 
     composite_literal;
     
@@ -532,9 +536,7 @@ precedence left NOT, ARRLEFT;
   operand ::=   	
 	  	literal : o {: RESULT = o; :} | 
 	    IDENTIFIER : o {: 
-			Semantic.getInstance().checkIfVariableDeclared(o);
-			Type t = Semantic.getInstance().getVariableType(o);
-			RESULT = new Identifier(t, o, null);
+			RESULT = Semantic.getInstance().getIdByName((String) o);
 		:}| 
 	    QUALIFIED_IDENTIFIER : o {: RESULT = o; :}| 
 	    LPAREN expression RPAREN ;
@@ -560,9 +562,9 @@ precedence left NOT, ARRLEFT;
 
   const_decl ::= CONST const_spec | CONST LPAREN const_spec_b RPAREN;
 
-  const_spec ::= identifier_list type EQ expression_list | identifier_list EQ expression_list;
+  const_spec ::= identifier_list type EQ expression_list {: :} | identifier_list EQ expression_list;
   
-  const_spec_b ::= | identifier_list const_spec_b | identifier_list EQ expression_list const_spec_b;
+  const_spec_b ::= | identifier_list const_spec_b {: :} | identifier_list EQ expression_list const_spec_b {: :};
 
   /* Const Declaration */
 	
@@ -601,39 +603,33 @@ precedence left NOT, ARRLEFT;
    		identifier_list:o
    		var_spec_aux:v {: 
 			if(v == null){
-				Semantic.getInstance().endReadIdList();
-				//Semantic.getInstance().endReadExpList();
 				RESULT = v;
 			}
 
-			else {
-				Semantic.getInstance().endReadIdList();
-				//Semantic.getInstance().endReadExpList();
+			else if(v instanceof Type){
+				Semantic.getInstance().declareIdList((Type) v, (ArrayList<Identifier>) o);
 				RESULT = v; 
+			} 
+			else if (v instanceof ArrayList<?>){
+				Semantic.getInstance().declareExpIdList((ArrayList<Expression>) v, (ArrayList<Identifier>) o);
+				RESULT = v;
 			}
 		:};
    		
    var_spec_aux ::=
    		 type: o {: 
-			Semantic.getInstance().convertIdList((Type) o); 
 			RESULT = o; 
 		 :} |
    		 EQ expression_list:o {:
-			if(o == null) {
-				RESULT = o;
-			} 
-			else {
-				Semantic.getInstance().convertIdList(o);  
-				RESULT = o; 
-			}
+			RESULT = o;
 		:} |
    		 type:o EQ expression_list:e {:
 			if(e == null){
 				RESULT = e;
 			}
 			else {
-				Semantic.getInstance().convertIdList((Type)o, e); 
-				RESULT = o;
+				Semantic.getInstance().checkTypeExpressionList((Type)o, (ArrayList<Expression>)e);
+				RESULT = e;
 			}
 		:};
    		
@@ -745,13 +741,41 @@ precedence left NOT, ARRLEFT;
 		:} | ;
   
   identifier_list ::= 
-  	IDENTIFIER: i {: 
-		Semantic.getInstance().readIdList(i);
-		RESULT = i;
-	:} | 
-  	identifier_list:l COMMA IDENTIFIER: i {: 
-		RESULT = Semantic.getInstance().readIdList(i).clone();
+  	IDENTIFIER:i identifier_list_aux:b {: 
+		
+		if(b == null) {
+			ArrayList<Identifier> res = new ArrayList<Identifier>();
+			res.add(0, new Identifier(null, i, null, Semantic.getInstance().currentScope));
+			RESULT = res;
+		} 
+
+		else {
+			((ArrayList<Identifier>) b).add(0, new Identifier(null, i, null, Semantic.getInstance().currentScope));
+			RESULT = b;
+		}
+		
 	:};
+	
+	
+  identifier_list_aux ::= 
+  	COMMA IDENTIFIER:e identifier_list_aux:c {:
+			if(c == null){
+				ArrayList<Identifier> res = new ArrayList<Identifier>();
+				Identifier id = new Identifier(null, e, null, Semantic.getInstance().currentScope);
+				res.add(0, id);
+				RESULT = res;
+			}
+			else {
+				Identifier id = new Identifier(null, e, null, Semantic.getInstance().currentScope);
+				((ArrayList<Identifier>)c).add(0, id);
+				RESULT = c;
+			}
+		:}
+  	| ;
+	
+  	//identifier_list:l COMMA IDENTIFIER: i {: 
+	//	RESULT = Semantic.getInstance().readIdList(i).clone();
+	//:};
   
   
   type_list ::= type | type_list COMMA type;

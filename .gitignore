@@ -1,4 +1,5 @@
 .ipynb_checkpoints
+eclipseWorkspace/GoTranslator/src/go/main/Main.java
 eclipseWorkspace/GoTranslator/src/go/core/Syntactic.java
 eclipseWorkspace/GoTranslator/src/go/core/Lexical.java
 eclipseWorkspace/GoTranslator/src/go/core/sym.java

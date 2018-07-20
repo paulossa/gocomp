@@ -55,13 +55,18 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     /* Para criar um novo java_cup.runtime.Symbol com informação sobre
        o token atual, mas esse tipo de token não tem valor associado.
     */
+
+    public static String curLine;
+
     private Symbol symbol(int type) {
+        curLine = "line: " + yyline;
         return new Symbol(type, yyline, yycolumn);
     }
 
     /* Também cria um new java_cup.runtime.Symbol Com informação
        sobre o token atual, mas esse objeto tem um valor. */
     private Symbol symbol(int type, Object value) {
+        curLine = "line: " + yyline;
         return new Symbol(type, yyline, yycolumn, value);
     }
 %}
@@ -159,7 +164,7 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     {decimal_literal}                                           { return symbol(sym.INTEGER_LITERAL, new Integer(yytext())); }
     {float_literal}                                             { return symbol(sym.FLOATING_POINT_LITERAL, new Float(yytext())); }
     {hex_literal}                                               { return symbol(sym.HEX_LITERAL, yytext());}
-    {white_space}                                               { /* Ignore */}
+    {white_space}                                               { /* Ignore */} 
     {identifier}		                                        { return symbol(sym.IDENTIFIER, yytext()); }
     {identifier}"."{identifier}									{ return symbol(sym.QUALIFIED_IDENTIFIER, yytext()); }
     {string_literal}                                            { return symbol(sym.STRING_LITERAL, yytext()); }
