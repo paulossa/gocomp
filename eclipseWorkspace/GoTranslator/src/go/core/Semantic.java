@@ -96,11 +96,11 @@ public class Semantic {
 
 	}
 	
-	
-	public static void assignVar(String id, Object val) {
-		System.out.println("atribuiu: " + val + " a variavel: " + id);
-		varValues.put(id, val);
-	}
+	//  Não faz sentido expandir as expressoes
+	//	public static void assignVar(String id, Object val) {
+	//		System.out.println("atribuiu: " + val + " a variavel: " + id);
+	//		varValues.put(id, val);
+	//	}
 	
 	
 	public static ArrayList<String> readIdList(String id) throws Exception {
@@ -130,6 +130,41 @@ public class Semantic {
 		auxIdList.clear();
 	}
 	
+	public static void convertIdList(Type actualType, Object expList) throws Exception {
+		
+//		System.out.println(auxIdList.size());
+//		System.out.println(((ArrayList<Expression>) expList).size());
+		
+		if(auxIdList.size() != ((ArrayList<Expression>) expList).size()) {
+			throw new Exception("Semantic error: Cannot assign identifier list to expression list of different size");
+		}
+		
+		if(expList instanceof ArrayList<?>) {
+			
+			for(int i = 0; i < ((ArrayList<Expression>) expList).size() ; i++) {
+				
+				Expression exp = ((ArrayList<Expression>) expList).get(i);
+				
+//				System.out.println(actualType);
+//				System.out.println(exp.getType());
+//				
+				if(!actualType.equals(exp.getType())) {
+					throw new Exception(
+						"Identifier and Expression lists have different types: " +
+						actualType +
+						" and " + 
+						exp.getType() +
+						" at position " + i
+					);
+				}
+				
+				else varTypes.put(auxIdList.get(i), actualType);
+			}
+		
+		}
+	}
+	
+	
 	public static void convertIdList(Type actualType) {
 		
 		for(String key: varTypes.keySet()) {
@@ -138,12 +173,13 @@ public class Semantic {
 				
 				boolean done = false;
 				
-				for(String basicType: NUMERIC_TYPES) {
-					if(basicType.equals(actualType.getTypeName())) {
-						done = true;
-						varTypes.put(key, new Type("number"));
-					}
-				}
+				//cast implicito
+//				for(String basicType: NUMERIC_TYPES) {
+//					if(basicType.equals(actualType.getTypeName())) {
+//						done = true;
+//						varTypes.put(key, new Type("number"));
+//					}
+//				}
 				
 				if(!done) varTypes.put(key, actualType);
 			}
@@ -166,7 +202,7 @@ public class Semantic {
 	
 	public static void declareVar(Object id, Type varType) {
 		if(id instanceof String) {
-			System.out.println("declaring " + (String)id + " of type " + varType.getTypeName());
+//			System.out.println("declaring " + (String)id + " of type " + varType.getTypeName());
 			variaveis.add((String)id);
 			varTypes.put((String)id, varType);
 		}
@@ -174,11 +210,13 @@ public class Semantic {
 	}
 	
 
-	public static Expression getResultingExp(Object o, String op) throws Exception {
+	public static Expression getResultingExp(Object o, String op) {
 		if(o instanceof ValuedEntity) {
 			return new Expression((ValuedEntity) o, null, op);
 		}
-		throw new Exception("TODO: Literals");
+		
+		
+		return null;
 	}
 	
 	
@@ -227,7 +265,9 @@ public class Semantic {
 					((Expression) right).getType()
 				);
 			}
-			return new Expression(null,null,null); //x + y  -  z + w
+			((Expression) left).setRight((Expression) right); //x + y  -  z + w
+			((Expression) left).setOp(op); //x + y  -  z + w
+			return (Expression)left;
 		}
 		
 		if(left instanceof ValuedEntity && right instanceof ValuedEntity) {

@@ -6,6 +6,10 @@ public class Literal extends ValuedEntity {
 		super(t, val);
 	}
 	
+	public Literal(Type t, String val) {
+		super(t, val);
+	}
+	
 	public Literal(Type t, Boolean val) {
 		super(t, val);
 	}

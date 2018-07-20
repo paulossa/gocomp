@@ -23,8 +23,12 @@ func main() {
     // with individual arguments.
     // sum(1, 2)
     // sum(1, 2, 3)
-    var z int = 1 + 2.4
-    var w int = 1.0 + z
+
+    var a = "kkk"
+
+    // var z, k int = 1 + 2.4, 2 - 1
+
+    // var w, m int = 1.0 + 3, 5.0 + 1
 
     // If you already have multiple args in a slice,
     // apply them to a variadic function using

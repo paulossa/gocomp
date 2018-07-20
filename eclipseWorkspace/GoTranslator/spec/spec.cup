@@ -392,14 +392,14 @@ precedence left NOT, ARRLEFT;
    
 	
   literal ::= 
-  	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :} | 
-  	FLOATING_POINT_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :}| 
-  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("number"), l); :} | 
+  	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l); :} | 
+  	FLOATING_POINT_LITERAL: l {: RESULT = l; :}| 
+  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("bool"), l); :} | 
   	CHARACTER_LITERAL: l {: RESULT = l; :}|
     HEX_LITERAL : l {: RESULT = l; :} | 
     IMAGINARY_LITERAL: l {: RESULT = l; :}| 
     OCTAL_LITERAL: l {: RESULT = l; :}| 
-    STRING_LITERAL: l {: RESULT = l; :}| 
+    STRING_LITERAL: l {: RESULT = new Literal(new Type("string"), l); :}| 
     func_literal : l {: RESULT = l; :}| 
     composite_literal;
     
@@ -436,12 +436,27 @@ precedence left NOT, ARRLEFT;
   expression ::= unary_expression:o {: RESULT = o; :}  | 
   
   expression:e1 binary_operator:o expression:e2 {: 
-	RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2,"+");
+	
+	if(e1 == null || e2 == null){
+		RESULT = null;
+	}
+
+	else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2,"+");
   :} ;
   
   unary_expression ::= 
-  	primary_expression:o {: RESULT = o; :}  | 
-  	unary_operator:op unary_expression:o {: RESULT = Semantic.getInstance().getResultingExp(o, ""); :} ;
+  	primary_expression:o {: 
+		if(o == null){
+			RESULT = o;
+		}
+		else RESULT = Semantic.getInstance().getResultingExp(o, null); 
+	:} | 
+  	unary_operator:op unary_expression:o {: 
+		if(o == null){
+			RESULT = o;	
+		}
+		else RESULT = Semantic.getInstance().getResultingExp(o, null); 
+	:} ;
   
   primary_expression ::= 
   
@@ -545,25 +560,33 @@ precedence left NOT, ARRLEFT;
    var_spec ::= 
    		identifier_list:o
    		var_spec_aux:v {: 
-			Semantic.getInstance().endReadIdList();
-			System.out.println(o);
-			//for (String id: (ArrayList<String>)o){
-				Semantic.getInstance().assignVar((String)o, v);	
-			//}
-			//((Identifier)o).setType((Type)v);
-			//Semantic.getInstance().declareVar((String)o, (Type)v);
-			RESULT = v; 
+			if(v == null){
+				RESULT = v;
+			}
+
+			else {
+				Semantic.getInstance().endReadIdList();
+				Semantic.getInstance().endReadExpList();
+				RESULT = v; 
+			}
 		:};
    		
    var_spec_aux ::=
-   		 type: o {: Semantic.getInstance().convertIdList((Type) o); RESULT = o; :} |
+   		 type: o {: 
+			Semantic.getInstance().convertIdList((Type) o); RESULT = o; 
+		 :} |
    		 EQ expression_list:o {: 
-			//Semantic.getInstance().convertIdList(); 
 			RESULT = o; 
 		:} |
-   		 type:o EQ expression_list:e {: 
-			Semantic.getInstance().convertIdList((Type)o); 
-			RESULT = Semantic.getInstance().getValue(e); ; 
+   		 type:o EQ expression_list:e {:
+			System.out.println(e); 
+			if(e == null){
+				RESULT = e;
+			}
+			else {
+				Semantic.getInstance().convertIdList((Type)o, e); 
+				RESULT = o;
+			}
 		:};
    		
   /* Variable Declaration */
@@ -643,13 +666,17 @@ precedence left NOT, ARRLEFT;
 	go_stmt ::= GO expression;
 
   expression_list ::= 
-  	expression: e {: 	
-		System.out.println(e);
-		Semantic.getInstance().readExpList((Expression)e);
-		RESULT = e;
+  	expression: e {: 
+		if(e == null){
+			RESULT = e;
+		}	
+		else RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
 	:} | 
   	expression_list:l COMMA expression: e {: 
-		RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
+		if(e == null){
+			RESULT = null;
+		}	
+		else RESULT = Semantic.getInstance().readExpList((Expression)e).clone();
 
 	:};
   
