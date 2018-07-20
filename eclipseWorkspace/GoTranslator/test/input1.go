@@ -19,16 +19,12 @@ import "fmt"
 
 func main() {
 
+    var a int = 3 - 3 + 2 * 3 / 1
+
     // Variadic functions can be called in the usual way
     // with individual arguments.
     // sum(1, 2)
     // sum(1, 2, 3)
-
-    var a = "kkk"
-
-    // var z, k int = 1 + 2.4, 2 - 1
-
-    // var w, m int = 1.0 + 3, 5.0 + 1
 
     // If you already have multiple args in a slice,
     // apply them to a variadic function using

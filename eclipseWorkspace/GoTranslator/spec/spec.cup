@@ -420,15 +420,42 @@ precedence left NOT, ARRLEFT;
    
   func_literal ::= FUNC signature func_body;
   
-  binary_operator ::= PIPEPIPE | ANDAND | relational_operator | add_operator | mult_operator;
+  binary_operator ::= 
+  	PIPEPIPE :o {: RESULT = o; :} |
+  	ANDAND   :o {: RESULT = o; :} |
+   
+  relational_operator : o {: RESULT = o;  :} |
   
-  add_operator ::= PIPE | PLUS | MINUS | CIRCU;
+  add_operator :o {: RESULT = o; :} |
+  mult_operator :o {: RESULT = o; :};
   
-  relational_operator ::= EQEQ | NOTEQ | LT | GT | LTEQ | GTEQ;
+  add_operator ::= PIPE :o {: RESULT = o; :} |
+  PLUS :o {: RESULT = o; :} |
+  MINUS :o {: RESULT = o; :} |
+  CIRCU :o {: RESULT = o; :};
   
-  unary_operator ::= PLUS | MINUS | NOT | CIRCU | MULT | AND | ARRLEFT;
+  relational_operator ::= EQEQ : o {: RESULT = o; :} |
+  NOTEQ  : o {: RESULT = o; :} |
+  LT     : o {: RESULT = o; :} |
+  GT     : o {: RESULT = o; :} |
+  LTEQ   : o {: RESULT = o; :} |
+  GTEQ   : o {: RESULT = o; :};
   
-  mult_operator ::= MULT | DIV | MOD | LSHIFT | RSHIFT | AND | ANDNOT;
+  unary_operator ::= PLUS :o {: RESULT = o; :} |
+  MINUS :o {: RESULT = o; :} |
+  NOT :o {: RESULT = o; :} | 
+  CIRCU :o {: RESULT = o; :} |
+  MULT :o {: RESULT = o; :}|
+  AND :o {: RESULT = o; :} |
+  ARRLEFT :o {: RESULT = o; :};
+  
+  mult_operator ::= MULT :o {: RESULT = o; :} |
+  DIV :o {: RESULT = o; :} |
+  MOD :o {: RESULT = o; :} |
+  LSHIFT :o {: RESULT = o; :} |
+  RSHIFT :o {: RESULT = o; :} |
+  AND :o {: RESULT = o; :} | 
+  ANDNOT :o {: RESULT = o; :};
   
   assign_operator ::= MULTEQ | DIVEQ | MODEQ | LSHIFTEQ | RSHIFTEQ | ANDEQ | ANDNOTEQ |
   	PIPEEQ | PLUSEQ | MINUSEQ | CIRCUEQ | EQ; 
@@ -441,7 +468,8 @@ precedence left NOT, ARRLEFT;
 		RESULT = null;
 	}
 
-	else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2,"+");
+	else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
+
   :} ;
   
   unary_expression ::= 
@@ -455,7 +483,7 @@ precedence left NOT, ARRLEFT;
 		if(o == null){
 			RESULT = o;	
 		}
-		else RESULT = Semantic.getInstance().getResultingExp(o, null); 
+		else RESULT = Semantic.getInstance().getResultingExp(o, (String) op); 
 	:} ;
   
   primary_expression ::= 

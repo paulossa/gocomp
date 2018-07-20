@@ -103,53 +103,53 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     /*OPERATORS AND PUNCTUATION*/
 
 
-    "+"                                                         { return symbol(sym.PLUS);       }
-    "&"                                                         { return symbol(sym.AND);        }
-    "+= "                                                       { return symbol(sym.PLUSEQ);     }
-    "&="                                                        { return symbol(sym.ANDEQ);     }
-    "&&"                                                        { return symbol(sym.ANDAND);      }
-    "=="                                                        { return symbol(sym.EQEQ);       }
-    "!="                                                        { return symbol(sym.NOTEQ);      }
-    "("                                                         { return symbol(sym.LPAREN);     }
-    ")"                                                         { return symbol(sym.RPAREN);     }
-    "-"                                                         { return symbol(sym.MINUS);      }
-    "|"                                                         { return symbol(sym.PIPE);       }
-    "-="                                                        { return symbol(sym.MINUSEQ);    }
-    "|="                                                        { return symbol(sym.PIPEEQ);     }
-    "||"                                                        { return symbol(sym.PIPEPIPE);   }
-    "<"                                                         { return symbol(sym.LT);         }
-    "<="                                                        { return symbol(sym.LTEQ);       }
-    "["                                                         { return symbol(sym.LBRACK);     }
-    "]"                                                         { return symbol(sym.RBRACK);     }
-    "*"                                                         { return symbol(sym.MULT);       }
-    "^"                                                         { return symbol(sym.CIRCU);      }
-    "*="                                                        { return symbol(sym.MULTEQ);     }
-    "^="                                                        { return symbol(sym.CIRCUEQ);    }
-    "<-"                                                        { return symbol(sym.ARRLEFT);    }
-    ">"                                                         { return symbol(sym.GT);         }
-    ">="                                                        { return symbol(sym.GTEQ);       }
-    "{"                                                         { return symbol(sym.LBRACE);     }
-    "}"                                                         { return symbol(sym.RBRACE);     }
-    "/"                                                         { return symbol(sym.DIV);        }
-    "<<"                                                        { return symbol(sym.LSHIFT);     }
-    "/="                                                        { return symbol(sym.DIVEQ);      }
-    "<<="                                                       { return symbol(sym.LSHIFTEQ);   }
-    "++"                                                        { return symbol(sym.PLUSPLUS);   }
-    "="                                                         { return symbol(sym.EQ);         }
-    ":="                                                        { return symbol(sym.COLONEQ);      }
-    ","                                                         { return symbol(sym.COMMA);   }
-    ";"                                                         { return symbol(sym.SEMICOLON);  }
-    "%"                                                         { return symbol(sym.MOD);        }
-    ">>"                                                        { return symbol(sym.RSHIFT);     }
-    "%="                                                        { return symbol(sym.MODEQ);      }
-    ">>="                                                       { return symbol(sym.RSHIFTEQ);   }
-    "--"                                                        { return symbol(sym.MINUSMINUS); }
-    "!"                                                         { return symbol(sym.NOT);        }
-    "..."                                                       { return symbol(sym.ELLIPSIS);   }
-    "."                                                         { return symbol(sym.DOT);        }
-    ":"                                                         { return symbol(sym.COLON);      }
-    "&^ "                                                       { return symbol(sym.ANDNOT);     }
-    "&^="                                                       { return symbol(sym.ANDNOTEQ);   }
+    "+"                                                         { return symbol(sym.PLUS, yytext());      }
+    "&"                                                         { return symbol(sym.AND, yytext());      }
+    "+= "                                                       { return symbol(sym.PLUSEQ, yytext());      }
+    "&="                                                        { return symbol(sym.ANDEQ, yytext());      }
+    "&&"                                                        { return symbol(sym.ANDAND, yytext());      }
+    "=="                                                        { return symbol(sym.EQEQ, yytext());      }
+    "!="                                                        { return symbol(sym.NOTEQ, yytext());      }
+    "("                                                         { return symbol(sym.LPAREN, yytext());      }
+    ")"                                                         { return symbol(sym.RPAREN, yytext());      }
+    "-"                                                         { return symbol(sym.MINUS, yytext());      }
+    "|"                                                         { return symbol(sym.PIPE, yytext());      }
+    "-="                                                        { return symbol(sym.MINUSEQ, yytext());      }
+    "|="                                                        { return symbol(sym.PIPEEQ, yytext());      }
+    "||"                                                        { return symbol(sym.PIPEPIPE, yytext());      }
+    "<"                                                         { return symbol(sym.LT, yytext());      }
+    "<="                                                        { return symbol(sym.LTEQ, yytext());      }
+    "["                                                         { return symbol(sym.LBRACK, yytext());      }
+    "]"                                                         { return symbol(sym.RBRACK, yytext());      }
+    "*"                                                         { return symbol(sym.MULT, yytext());      }
+    "^"                                                         { return symbol(sym.CIRCU, yytext());      }
+    "*="                                                        { return symbol(sym.MULTEQ, yytext());      }
+    "^="                                                        { return symbol(sym.CIRCUEQ, yytext());      }
+    "<-"                                                        { return symbol(sym.ARRLEFT, yytext());      }
+    ">"                                                         { return symbol(sym.GT, yytext());      }
+    ">="                                                        { return symbol(sym.GTEQ, yytext());      }
+    "{"                                                         { return symbol(sym.LBRACE, yytext());      }
+    "}"                                                         { return symbol(sym.RBRACE, yytext());      }
+    "/"                                                         { return symbol(sym.DIV, yytext());      }
+    "<<"                                                        { return symbol(sym.LSHIFT, yytext());      }
+    "/="                                                        { return symbol(sym.DIVEQ, yytext());      }
+    "<<="                                                       { return symbol(sym.LSHIFTEQ, yytext());      }
+    "++"                                                        { return symbol(sym.PLUSPLUS, yytext());      }
+    "="                                                         { return symbol(sym.EQ, yytext());      }
+    ":="                                                        { return symbol(sym.COLONEQ, yytext());      }
+    ","                                                         { return symbol(sym.COMMA, yytext());      }
+    ";"                                                         { return symbol(sym.SEMICOLON, yytext());      }
+    "%"                                                         { return symbol(sym.MOD, yytext());      }
+    ">>"                                                        { return symbol(sym.RSHIFT, yytext());      }
+    "%="                                                        { return symbol(sym.MODEQ, yytext());      }
+    ">>="                                                       { return symbol(sym.RSHIFTEQ, yytext());      }
+    "--"                                                        { return symbol(sym.MINUSMINUS, yytext());      }
+    "!"                                                         { return symbol(sym.NOT, yytext());      }
+    "..."                                                       { return symbol(sym.ELLIPSIS, yytext());      }
+    "."                                                         { return symbol(sym.DOT, yytext());      }
+    ":"                                                         { return symbol(sym.COLON, yytext());      }
+    "&^ "                                                       { return symbol(sym.ANDNOT, yytext());      }
+    "&^="                                                       { return symbol(sym.ANDNOTEQ, yytext());      }
 
     /*TOKENS*/
 

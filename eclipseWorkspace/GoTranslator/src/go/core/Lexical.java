@@ -971,11 +971,11 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 87: break;
           case 5: 
-            { return symbol(sym.DIV);
+            { return symbol(sym.DIV, yytext());
             }
           case 88: break;
           case 6: 
-            { return symbol(sym.MULT);
+            { return symbol(sym.MULT, yytext());
             }
           case 89: break;
           case 7: 
@@ -983,83 +983,83 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 90: break;
           case 8: 
-            { return symbol(sym.MINUS);
+            { return symbol(sym.MINUS, yytext());
             }
           case 91: break;
           case 9: 
-            { return symbol(sym.DOT);
+            { return symbol(sym.DOT, yytext());
             }
           case 92: break;
           case 10: 
-            { return symbol(sym.PLUS);
+            { return symbol(sym.PLUS, yytext());
             }
           case 93: break;
           case 11: 
-            { return symbol(sym.AND);
+            { return symbol(sym.AND, yytext());
             }
           case 94: break;
           case 12: 
-            { return symbol(sym.EQ);
+            { return symbol(sym.EQ, yytext());
             }
           case 95: break;
           case 13: 
-            { return symbol(sym.NOT);
+            { return symbol(sym.NOT, yytext());
             }
           case 96: break;
           case 14: 
-            { return symbol(sym.LPAREN);
+            { return symbol(sym.LPAREN, yytext());
             }
           case 97: break;
           case 15: 
-            { return symbol(sym.RPAREN);
+            { return symbol(sym.RPAREN, yytext());
             }
           case 98: break;
           case 16: 
-            { return symbol(sym.PIPE);
+            { return symbol(sym.PIPE, yytext());
             }
           case 99: break;
           case 17: 
-            { return symbol(sym.LT);
+            { return symbol(sym.LT, yytext());
             }
           case 100: break;
           case 18: 
-            { return symbol(sym.LBRACK);
+            { return symbol(sym.LBRACK, yytext());
             }
           case 101: break;
           case 19: 
-            { return symbol(sym.RBRACK);
+            { return symbol(sym.RBRACK, yytext());
             }
           case 102: break;
           case 20: 
-            { return symbol(sym.CIRCU);
+            { return symbol(sym.CIRCU, yytext());
             }
           case 103: break;
           case 21: 
-            { return symbol(sym.GT);
+            { return symbol(sym.GT, yytext());
             }
           case 104: break;
           case 22: 
-            { return symbol(sym.LBRACE);
+            { return symbol(sym.LBRACE, yytext());
             }
           case 105: break;
           case 23: 
-            { return symbol(sym.RBRACE);
+            { return symbol(sym.RBRACE, yytext());
             }
           case 106: break;
           case 24: 
-            { return symbol(sym.COLON);
+            { return symbol(sym.COLON, yytext());
             }
           case 107: break;
           case 25: 
-            { return symbol(sym.COMMA);
+            { return symbol(sym.COMMA, yytext());
             }
           case 108: break;
           case 26: 
-            { return symbol(sym.SEMICOLON);
+            { return symbol(sym.SEMICOLON, yytext());
             }
           case 109: break;
           case 27: 
-            { return symbol(sym.MOD);
+            { return symbol(sym.MOD, yytext());
             }
           case 110: break;
           case 28: 
@@ -1075,11 +1075,11 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 113: break;
           case 31: 
-            { return symbol(sym.DIVEQ);
+            { return symbol(sym.DIVEQ, yytext());
             }
           case 114: break;
           case 32: 
-            { return symbol(sym.MULTEQ);
+            { return symbol(sym.MULTEQ, yytext());
             }
           case 115: break;
           case 33: 
@@ -1091,11 +1091,11 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 117: break;
           case 35: 
-            { return symbol(sym.MINUSMINUS);
+            { return symbol(sym.MINUSMINUS, yytext());
             }
           case 118: break;
           case 36: 
-            { return symbol(sym.MINUSEQ);
+            { return symbol(sym.MINUSEQ, yytext());
             }
           case 119: break;
           case 37: 
@@ -1107,63 +1107,63 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 121: break;
           case 39: 
-            { return symbol(sym.PLUSPLUS);
+            { return symbol(sym.PLUSPLUS, yytext());
             }
           case 122: break;
           case 40: 
-            { return symbol(sym.ANDAND);
+            { return symbol(sym.ANDAND, yytext());
             }
           case 123: break;
           case 41: 
-            { return symbol(sym.ANDEQ);
+            { return symbol(sym.ANDEQ, yytext());
             }
           case 124: break;
           case 42: 
-            { return symbol(sym.EQEQ);
+            { return symbol(sym.EQEQ, yytext());
             }
           case 125: break;
           case 43: 
-            { return symbol(sym.NOTEQ);
+            { return symbol(sym.NOTEQ, yytext());
             }
           case 126: break;
           case 44: 
-            { return symbol(sym.PIPEEQ);
+            { return symbol(sym.PIPEEQ, yytext());
             }
           case 127: break;
           case 45: 
-            { return symbol(sym.PIPEPIPE);
+            { return symbol(sym.PIPEPIPE, yytext());
             }
           case 128: break;
           case 46: 
-            { return symbol(sym.ARRLEFT);
+            { return symbol(sym.ARRLEFT, yytext());
             }
           case 129: break;
           case 47: 
-            { return symbol(sym.LTEQ);
+            { return symbol(sym.LTEQ, yytext());
             }
           case 130: break;
           case 48: 
-            { return symbol(sym.LSHIFT);
+            { return symbol(sym.LSHIFT, yytext());
             }
           case 131: break;
           case 49: 
-            { return symbol(sym.CIRCUEQ);
+            { return symbol(sym.CIRCUEQ, yytext());
             }
           case 132: break;
           case 50: 
-            { return symbol(sym.GTEQ);
+            { return symbol(sym.GTEQ, yytext());
             }
           case 133: break;
           case 51: 
-            { return symbol(sym.RSHIFT);
+            { return symbol(sym.RSHIFT, yytext());
             }
           case 134: break;
           case 52: 
-            { return symbol(sym.COLONEQ);
+            { return symbol(sym.COLONEQ, yytext());
             }
           case 135: break;
           case 53: 
-            { return symbol(sym.MODEQ);
+            { return symbol(sym.MODEQ, yytext());
             }
           case 136: break;
           case 54: 
@@ -1171,7 +1171,7 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 137: break;
           case 55: 
-            { return symbol(sym.ELLIPSIS);
+            { return symbol(sym.ELLIPSIS, yytext());
             }
           case 138: break;
           case 56: 
@@ -1187,23 +1187,23 @@ public class Lexical implements java_cup.runtime.Scanner {
             }
           case 141: break;
           case 59: 
-            { return symbol(sym.PLUSEQ);
+            { return symbol(sym.PLUSEQ, yytext());
             }
           case 142: break;
           case 60: 
-            { return symbol(sym.ANDNOTEQ);
+            { return symbol(sym.ANDNOTEQ, yytext());
             }
           case 143: break;
           case 61: 
-            { return symbol(sym.ANDNOT);
+            { return symbol(sym.ANDNOT, yytext());
             }
           case 144: break;
           case 62: 
-            { return symbol(sym.LSHIFTEQ);
+            { return symbol(sym.LSHIFTEQ, yytext());
             }
           case 145: break;
           case 63: 
-            { return symbol(sym.RSHIFTEQ);
+            { return symbol(sym.RSHIFTEQ, yytext());
             }
           case 146: break;
           case 64: 
