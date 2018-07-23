@@ -1,6 +1,6 @@
 package main
 import "fmt"
-// func semCorpo(x int) int{} 
+// func semCorpo(x int) int{}
 var x int = 10
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 
 func x() {
     var a,b,semCorpo = "a", "b", "c"
-    var x,y int = 2, 3 + 10 + 15 * 7 - 10
+    //var x,y int = 2, 3 + 10 + 15 * 7 - 10
     // var y string = "kkk"
 }
 
@@ -218,7 +218,7 @@ func x() {
 
 //     if x := f(); x < (y >> 3) {
 //         // return x
-//     } 
+//     }
 //     else if kkk {
 
 //     }
@@ -230,7 +230,7 @@ func x() {
 //     // if {
 //         //errado
 //     // }
-    	
+
 
 //     yo = calc
 //     (1+3) >> 3
