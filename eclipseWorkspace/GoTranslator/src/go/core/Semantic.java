@@ -74,6 +74,7 @@ public class Semantic {
 	
 	private int sec = 0;
 	public static ArrayList<Identifier> variaveis = new ArrayList<Identifier>();
+	public static HashMap<String, String> idToRegister = new HashMap<String, String> ();
 	
 	private static Semantic sAnalysis;
 	
@@ -103,6 +104,43 @@ public class Semantic {
 				throw new Exception("Expected identifier or literal at position " + (i - size1 + 1) + " of right side of assignment.");
 			}
 			
+			Identifier id = (Identifier) exp1.getLeft();
+			
+			
+			if(op.equals("="))
+				Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode());
+			
+			else if(op.equals("*=")) {
+				String reg = Register.getNewRegister();
+				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+				Semantic.finalCode.add("MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+				Register.finishUseReg();
+			}
+			
+			else if(op.equals("-=")) {
+				String reg = Register.getNewRegister();
+				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+				Semantic.finalCode.add("SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+				Register.finishUseReg();
+			}
+			
+			else if(op.equals("/=")) {
+				String reg = Register.getNewRegister();
+				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+				Semantic.finalCode.add("DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+				Register.finishUseReg();
+			}
+			
+			else if(op.equals("+=")) {
+				String reg = Register.getNewRegister();
+				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+				Semantic.finalCode.add("ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+				Register.finishUseReg();
+			}
 		}
 		
 	}
@@ -161,7 +199,13 @@ public class Semantic {
 			isVarAlreadyDeclared(id);
 
 			declareVar(id, e.getType());
-			finalCode.add("ST " + id.getName() + ", " + e.getCode() + "\n");			
+			
+			String expReg = e.getCode();
+			
+			idToRegister.put(id.getName(), expReg);
+			
+			finalCode.add("ST " + id.getName() + ", " + expReg + "\n");
+			Register.finishUseReg();
 		}
 		
 	}

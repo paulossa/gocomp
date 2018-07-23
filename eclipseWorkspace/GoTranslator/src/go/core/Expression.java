@@ -19,9 +19,10 @@ public class Expression extends ScopedEntity {
 	
 	private void fixTree2() {
 		if(right != null) {
+//			System.out.println(right);
 			
-			if(op.equals("*") && right.getRight() != null && !right.getOp().equals("/")) {
-				
+			if(op.equals("*")) {
+
 				String reg =  Register.getNewRegister();
 				String thisVal = "";
 				String nextVal = "";
@@ -61,7 +62,7 @@ public class Expression extends ScopedEntity {
 	private void fixTree1() {
 		if(right != null) {
 			
-			if(op.equals("/") && right.getRight() != null) {
+			if(op.equals("/")) {
 				
 				String reg =  Register.getNewRegister();
 				String thisVal = "";
@@ -88,6 +89,7 @@ public class Expression extends ScopedEntity {
 				op = right.getOp();
 				right = right.getRight();
 				
+				
 				Semantic.finalCode.add("DIV " + reg + ", " +  thisVal + ", " + nextVal + "\n");
 				
 			}
@@ -104,10 +106,8 @@ public class Expression extends ScopedEntity {
 
 		fixTree1();
 		fixTree2();
-
-		
-		return getCodeAux();
-
+		String ans = getCodeAux();
+		return ans;
 	}
 	
 	private String getCodeAux() {
@@ -143,7 +143,6 @@ public class Expression extends ScopedEntity {
 
 			String reg = Register.getNewRegister();
 			String next = right.getCodeAux();
-			String val = right.left.getValue().toString();
 			
 			String instrucao = "";
 			

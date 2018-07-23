@@ -44,13 +44,13 @@ parser code {:
 
         /* Add to the end of the StringBuilder error message created in
            this method the message that was passed into this method. */
-        m.append(" : "+message);
-
+        m.append(" : " + message);
+ 
         /* Print the contents of the StringBuilder 'm', which contains
            an error message, out on a line. */
-        System.out.println(m);
-        System.out.println(message);
-        System.out.println(info);
+       System.out.println(m);
+       // System.out.println(message);
+        //System.out.println(info);
     }
 
     /* Change the method report_fatal_error so when it reports a fatal
@@ -63,11 +63,6 @@ parser code {:
         System.exit(1);
     }
 :};
-
-init with {:
-  StringBuilder res_code = new StringBuilder();
-:};
-
 
 
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
