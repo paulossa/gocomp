@@ -223,14 +223,14 @@ precedence left LPAREN;
 precedence left PIPEPIPE;
 precedence left ANDAND;
 precedence left EQEQ, NOTEQ, LT, GT, LTEQ, GTEQ;
-precedence left PIPE, PLUS, MINUS, CIRCU;
 precedence left MULT, DIV, MOD, LSHIFT, RSHIFT, AND, ANDNOT;
+precedence left PIPE, PLUS, MINUS, CIRCU;
 precedence left NOT, ARRLEFT;
 
 
   start with goal;
   
-  goal ::= compilation_unit:c {: RESULT = c; :};
+  goal ::= compilation_unit:c {: RESULT = c; System.out.println(Semantic.getInstance().getCode()); :};
 
   compilation_unit ::=
   		package_declaration_opt top_import_decl
@@ -475,18 +475,21 @@ precedence left NOT, ARRLEFT;
   	MINUSEQ:o {: RESULT = o; :}   | 
   	CIRCUEQ:o {: RESULT = o; :}   | 
   	EQ:o {: RESULT = o; :}  ; 
-   
-  expression ::= unary_expression:o {: RESULT = o; :}  | 
+
   
-  expression:e1 binary_operator:o expression:e2 {: 
+  expression ::= expression:e1 binary_operator:o expression:e2 {:
 	
 	if(e1 == null || e2 == null){
 		RESULT = null;
 	}
 
-	else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
+	else{
 
-  :} ;
+		RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
+	}
+
+ :} | unary_expression:o {: RESULT = o;:} ;
+ 
   
   unary_expression ::= 
   	primary_expression:o {: 
@@ -611,6 +614,7 @@ precedence left NOT, ARRLEFT;
 				RESULT = v; 
 			} 
 			else if (v instanceof ArrayList<?>){
+				//System.out.println("1 " + v);
 				Semantic.getInstance().declareExpIdList((ArrayList<Expression>) v, (ArrayList<Identifier>) o);
 				RESULT = v;
 			}
@@ -624,6 +628,7 @@ precedence left NOT, ARRLEFT;
 			RESULT = o;
 		:} |
    		 type:o EQ expression_list:e {:
+				//System.out.println("2 " + e);
 			if(e == null){
 				RESULT = e;
 			}
@@ -718,6 +723,7 @@ precedence left NOT, ARRLEFT;
 			if(c == null){
 				ArrayList<Expression> res = new ArrayList<Expression>();
 				res.add(0, (Expression)e);
+  				//System.out.println(e);
 				RESULT = res;
 			}
 			else {

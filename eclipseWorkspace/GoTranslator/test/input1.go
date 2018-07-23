@@ -1,17 +1,18 @@
 package main
 import "fmt"
-// func semCorpo(x int) int{} 
-var x int = 10
+
+// var x int = 3
+var w int = 1 / 2 * 3 / 5
 
 func main() {
-    var a,b,semCorpo = "kkk", "kk", 2
-    var c = x + 10
+    // var a,b,semCorpo = "kkk", "kk", 2
+    // var c int = w * 3
     // var x,y int = 2, 3 + 10 + 15 * 7 - 10
 }
 
 func x() {
-    var a,b,semCorpo = "a", "b", "c"
-    var x,y int = 2, 3 + 10 + 15 * 7 - 10
+    // var a,b,semCorpo = "a", "b", "c"
+    // var y int = c + a
     // var y string = "kkk"
 }
 

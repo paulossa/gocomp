@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
+import java.util.Queue;
+import java.util.LinkedList;
 import java.util.HashMap;
 
 
@@ -16,7 +17,18 @@ public class Semantic {
 	public static Syntactic parser;
 	public static Lexical lex;
 	
-	public int lastListSize = 0;
+	public static Queue<String> finalCode = new LinkedList<String>(); 
+	
+	public static String getCode() {
+		String ans = "100: " + "LD SP, 4000\n";
+		
+		while(!finalCode.isEmpty()) {
+			ans += Register.getLabel() + finalCode.remove();
+		}
+		
+		return ans;
+	}
+	
 	
 	
 	private static final String[]
@@ -145,10 +157,11 @@ public class Semantic {
 			Identifier id = o.get(i);		
 			id.setType(e.getType());
 			
+			
 			isVarAlreadyDeclared(id);
 
 			declareVar(id, e.getType());
-//			System.out.println(id.getName() + " = " + e.getType());
+			finalCode.add("ST " + id.getName() + ", " + e.getCode() + "\n");			
 		}
 		
 	}
@@ -195,6 +208,8 @@ public class Semantic {
 	
 	public static Expression checkExpressionTypes(Object left, Object right, String op) throws Exception {
 		
+//		System.out.println(left);
+//		System.out.println(right);
 		
 		if(left instanceof ValuedEntity && right instanceof Expression) {
 			if(!((ValuedEntity) left).getType().equals(((Expression) right).getType())) {
@@ -219,6 +234,7 @@ public class Semantic {
 			}
 			((Expression) left).setRight((Expression) right); //x + y  -  z + w
 			((Expression) left).setOp(op); //x + y  -  z + w
+			//System.out.println("result = " + left);
 			return (Expression)left;
 		}
 		

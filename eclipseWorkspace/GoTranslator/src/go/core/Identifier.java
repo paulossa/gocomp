@@ -6,7 +6,7 @@ public class Identifier extends ValuedEntity {
 
 	private String name;
 	
-	public Identifier(Type t, String name, Number val, int scope) {
+	public Identifier(Type t, String name, Object val, int scope) {
 		super(t, val, scope);
 		this.name = name;
 	}

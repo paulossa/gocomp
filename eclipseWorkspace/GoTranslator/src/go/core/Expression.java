@@ -7,6 +7,8 @@ public class Expression extends ScopedEntity {
 	private Expression right;
 	private String op;
 	
+	private int count = 0;
+	
 	public Expression(ValuedEntity left, Expression right, String op, int scope) {
 		super(scope);
 		this.type = left.getType();
@@ -15,22 +17,164 @@ public class Expression extends ScopedEntity {
 		this.op = op;
 	}
 	
-	public Number getValue() throws Exception {
+	private void fixTree2() {
+		if(right != null) {
+			
+			if(op.equals("*") && right.getRight() != null && !right.getOp().equals("/")) {
+				
+				String reg =  Register.getNewRegister();
+				String thisVal = "";
+				String nextVal = "";
+				
+				if(left instanceof Literal) {
+					thisVal += "#" + left.getValue();
+				}
+				
+				if(left instanceof Identifier) {
+					thisVal += ((Identifier)left).getName();
+				}
+				
+				if(right.left instanceof Literal) {
+					nextVal += "#" + right.left.getValue();
+				}
+				
+				if(right.left instanceof Identifier) {
+					nextVal +=  ((Identifier)right.left).getName();
+				}
+				
+				
+				left = new Identifier(left.getType(), reg, reg ,0);
+				op = right.getOp();
+				right = right.getRight();
+				
+				Semantic.finalCode.add("MUL " + reg + ", " +  thisVal + ", " + nextVal + "\n");
+				
+			}
+			
+			if(right != null) {
+				right.fixTree2();
+			}
+			
+		}
+	}
+	
+	private void fixTree1() {
+		if(right != null) {
+			
+			if(op.equals("/") && right.getRight() != null) {
+				
+				String reg =  Register.getNewRegister();
+				String thisVal = "";
+				String nextVal = "";
+				
+				if(left instanceof Literal) {
+					thisVal += "#" + left.getValue();
+				}
+				
+				if(left instanceof Identifier) {
+					thisVal += ((Identifier)left).getName();
+				}
+				
+				if(right.left instanceof Literal) {
+					nextVal += "#" + right.left.getValue();
+				}
+				
+				if(right.left instanceof Identifier) {
+					nextVal +=  ((Identifier)right.left).getName();
+				}
+				
+				
+				left = new Identifier(left.getType(), reg, reg ,0);
+				op = right.getOp();
+				right = right.getRight();
+				
+				Semantic.finalCode.add("DIV " + reg + ", " +  thisVal + ", " + nextVal + "\n");
+				
+			}
+			
+			if(right != null) {
+				right.fixTree1();
+			}
+			
+		}
+	}
+	
+	public String getCode() {
+		
+
+		fixTree1();
+		fixTree2();
+
+		
+		return getCodeAux();
+
+	}
+	
+	private String getCodeAux() {
 		if(right == null) {
-			return (Number)left.getValue();
+			
+			if(left instanceof Identifier) {
+				Identifier i = (Identifier) left;
+				return i.getName();
+			}
+			
+			else if(left instanceof Literal) {
+				Literal i = (Literal) left;
+				return "#" + i.getValue();
+			}
+			
 		}
 		
-		if(op == "+") 
-			return 
-				((Number) left.getValue()).floatValue() + 
-				((Number)right.getValue()).floatValue();
-		
-		else if(op == "-") 
-			return 
-				((Number) left.getValue()).floatValue() - 
-				((Number)right.getValue()).floatValue();
-		
-		throw new Exception("lel");
+		else {
+			
+			String aux = "";
+			
+			if(left instanceof Identifier) {
+				Identifier i = (Identifier) left;
+				aux += i.getName();
+			}
+			
+			else if(left instanceof Literal) {
+				Literal i = (Literal) left;
+				aux += "#" + i.getValue();
+			}
+			
+			count += 1;
+
+			String reg = Register.getNewRegister();
+			String next = right.getCodeAux();
+			String val = right.left.getValue().toString();
+			
+			String instrucao = "";
+			
+			if(op.equals("+")) {
+				instrucao = "ADD ";
+			}
+			else if(op.equals("-")) {
+				instrucao = "SUB ";
+			}
+			
+			else if(op.equals("/")) {
+				instrucao = "DIV ";
+			}
+			
+			else if(op.equals("*")) {
+				instrucao = "MUL ";
+			}
+
+			String ans = instrucao + reg + ", " + aux + ", " + next + "\n";
+
+			Semantic.finalCode.add(ans);
+
+			
+			if(count-- > 0) 
+				return reg;
+			
+			else 
+				return ans;
+			
+		}
+		return "FAIL";
 	}
 	
 	//Returns true if expression is deep. i.e.: Two or more expressions nested.
