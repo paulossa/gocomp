@@ -592,7 +592,7 @@ precedence left NOT, ARRLEFT;
    short_var_decl ::= expression_list COLONEQ expression_list;
   
    var_decl ::= 
-   	VAR var_spec: o {: RESULT = o; :} | 
+   	VAR var_spec: o {: RESULT = o; /*System.out.println(o);*/ :} | 
    	VAR LPAREN var_specs:o RPAREN {: RESULT = o; :};
    
    var_specs ::= 

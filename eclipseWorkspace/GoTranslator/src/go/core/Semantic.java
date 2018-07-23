@@ -16,6 +16,8 @@ public class Semantic {
 	public static Syntactic parser;
 	public static Lexical lex;
 	
+	public static CodeGenerator codeGenerator = new CodeGenerator();
+	
 	public int lastListSize = 0;
 	
 	
@@ -146,9 +148,11 @@ public class Semantic {
 			id.setType(e.getType());
 			
 			isVarAlreadyDeclared(id);
-
-			declareVar(id, e.getType());
-//			System.out.println(id.getName() + " = " + e.getType());
+			
+			//System.out.println(e.getValue());
+			declareVar(id, e);
+			
+			//System.out.println(id.getName() + " = " + e.getValue());
 		}
 		
 	}
@@ -159,15 +163,36 @@ public class Semantic {
 			Identifier id = ar.get(i);
 			id.setType(t);
 			isVarAlreadyDeclared(id);
-			declareVar(id, t);
+			declareVar(id);
 		}
 	}
 	
 	
-	public static void declareVar(Identifier id, Type varType) {
+	
+	
+	
+	
+	// BINDS TO CODE GENERATOR
+	/**
+	 * Generates a LD from a unvalued variable from code
+	 * @param id
+	 */
+	private static void declareVar(Identifier id) {
+		codeGenerator.generateLDCode(id);
+	}
+
+	/**
+	 * Generates LD and ST for valued attributions
+	 * @param id leftSide operator
+	 * @param e expression with "value"
+	 * @throws Exception
+	 */
+	public static void declareVar(Identifier id, Expression e) throws Exception {
 //			System.out.println("declaring " + id + " of type " + varType.getTypeName());
-		id.setType(varType);
+		id.setType(e.getType());
+		id.setRegister(RegisterFactory.newRegister());
 		variaveis.add(id);
+		codeGenerator.declareVar(id, e);
 	}
 	
 
@@ -252,6 +277,11 @@ public class Semantic {
 
 	public void hw() {
 		System.out.println("Compiled Successfully");
+	}
+
+
+	public static CodeGenerator getCodeGenerator() {
+		return codeGenerator;
 	}	
 
 }

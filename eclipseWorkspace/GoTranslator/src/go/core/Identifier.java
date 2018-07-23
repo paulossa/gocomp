@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Identifier extends ValuedEntity {
 
 	private String name;
+	private String register;
 	
 	public Identifier(Type t, String name, Number val, int scope) {
 		super(t, val, scope);
@@ -42,11 +43,23 @@ public class Identifier extends ValuedEntity {
 
 	@Override
 	public String toString() {
-		return "Identifier [name=" + name + ", getType()=" + getType() + ", getScope()=" + getScope() + "]";
+		return "Identifier [name=" + name + ", getType()=" + getType() + ", getScope()=" + getScope() + ", register=" + register + "]";
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setRegister(String newRegister) {
+		this.register = newRegister;
+	}
+
+	public String toCode() {
+		return String.format("LD %s, %s", register, name);
+	}
+
+	public String getRegister() {
+		return register;
 	}
 		
 

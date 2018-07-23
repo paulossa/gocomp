@@ -1,6 +1,7 @@
 package go.main;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 
 import java_cup.runtime.Symbol;
@@ -10,12 +11,13 @@ public class Main {
 	private static final int MIN_INPUT_FILES = 1;
 
 	public static void main(String[] args) {
-		startCompilationFor("/Users/filipe/Repositories/compiladores/eclipseWorkspace/GoTranslator/test/input1.go");
-		if (args.length < MIN_INPUT_FILES) {
-			printHowTo();
-		} else {
-			for (String filePath : args) { startCompilationFor("/Users/filipe/Repositories/compiladores/eclipseWorkspace/GoTranslator/test/input1.go"); }
-		}
+		
+		startCompilationFor("test/input1.go");
+//		if (args.length < MIN_INPUT_FILES) {
+//			printHowTo();
+//		} else {
+//			for (String filePath : args) { startCompilationFor("test/input1.go"); }
+//		}
 	}
 
 	private static void startCompilationFor(String filePath) {
@@ -25,6 +27,7 @@ public class Main {
 			Syntactic parser = new Syntactic(sc);
 			Symbol s = parser.parse();
 			
+			System.out.println(Semantic.getInstance().getCodeGenerator().getAssemlyCode());
 		} catch (Exception e) {
 			System.err.println("Failed to compile \"" + filePath + "\":");
 			System.err.println(e.getMessage());

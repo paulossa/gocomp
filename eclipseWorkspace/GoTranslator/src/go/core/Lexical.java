@@ -557,13 +557,18 @@ public class Lexical implements java_cup.runtime.Scanner {
     /* Para criar um novo java_cup.runtime.Symbol com informação sobre
        o token atual, mas esse tipo de token não tem valor associado.
     */
+
+    public static String curLine;
+
     private Symbol symbol(int type) {
+        curLine = "line: " + yyline;
         return new Symbol(type, yyline, yycolumn);
     }
 
     /* Também cria um new java_cup.runtime.Symbol Com informação
        sobre o token atual, mas esse objeto tem um valor. */
     private Symbol symbol(int type, Object value) {
+        curLine = "line: " + yyline;
         return new Symbol(type, yyline, yycolumn, value);
     }
 

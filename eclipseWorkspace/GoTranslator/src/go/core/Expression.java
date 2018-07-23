@@ -17,6 +17,9 @@ public class Expression extends ScopedEntity {
 	
 	public Number getValue() throws Exception {
 		if(right == null) {
+			if (left.getType().getTypeName().equals("string") ) {
+				return left.getValue().hashCode();
+			}
 			return (Number)left.getValue();
 		}
 		
@@ -29,8 +32,7 @@ public class Expression extends ScopedEntity {
 			return 
 				((Number) left.getValue()).floatValue() - 
 				((Number)right.getValue()).floatValue();
-		
-		throw new Exception("lel");
+		return 0;
 	}
 	
 	//Returns true if expression is deep. i.e.: Two or more expressions nested.
