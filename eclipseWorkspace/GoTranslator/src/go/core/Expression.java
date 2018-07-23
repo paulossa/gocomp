@@ -103,7 +103,19 @@ public class Expression extends ScopedEntity {
 	
 	public String getCode() {
 		
-		if(type.getTypeName().equals("string")) return null;
+		if(type.getTypeName().equals("string")) {
+			String ans = "";
+			if(left instanceof Identifier) {
+				ans += ((Identifier) left).getName();
+			}
+			
+			if(left instanceof Literal) {
+				ans += ((Literal) left).getValue();
+			}
+			
+			return ans;
+		}
+		
 		fixTree1();
 		fixTree2();
 		String ans = getCodeAux();

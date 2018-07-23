@@ -123,7 +123,7 @@ public class Semantic {
 			
 				
 				if(op.equals("="))
-					Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode());
+					Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode() + "\n");
 				
 				else if(op.equals("*=")) {
 					String reg = Register.getNewRegister();
@@ -220,10 +220,10 @@ public class Semantic {
 			
 			idToRegister.put(id.getName(), expReg);
 			
-			if(!e.getType().getTypeName().equals("string")) {
+//			if(!e.getType().getTypeName().equals("string")) {
 				finalCode.add("ST " + id.getName() + ", " + expReg + "\n");
 				Register.finishUseReg();
-			}
+//			}
 		}
 		
 	}
