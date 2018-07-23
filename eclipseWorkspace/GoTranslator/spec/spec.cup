@@ -260,7 +260,22 @@ precedence left NOT, ARRLEFT;
   Statements ::= | Statement Statements;
   
   Statement ::= 
-  	declaration | label_stmt | simple_stmt_b | goto_stmt | go_stmt | 
+  	declaration | label_stmt |
+  	 simple_stmt_b:s {: 
+
+		if(s != null){
+			ArrayList<Expression> e1 = ((Assignment) s).getExpList1();
+			ArrayList<Expression> e2 = ((Assignment) s).getExpList2();
+			String op = ((Assignment) s).getOp();
+
+		
+			if(e1 != null && e2 != null){
+				Semantic.getInstance().checkAssignment(e1, e2, op);
+			}
+		}
+
+	:} | 
+  	 goto_stmt | go_stmt | 
   	defer_stmt | fall_stmt | block | return_stmt | select_stmt |
   	continue_stmt | break_stmt | if_stmt | for_stmt | switch_stmt;
   
@@ -394,7 +409,7 @@ precedence left NOT, ARRLEFT;
 	
   literal ::= 
   	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l, Semantic.getInstance().currentScope); :} | 
-  	FLOATING_POINT_LITERAL: l {: RESULT = l; :}| 
+  	FLOATING_POINT_LITERAL: l {: RESULT = new Literal(new Type("float"), l, Semantic.getInstance().currentScope); :}| 
   	BOOLEAN_LITERAL_FALSE: l {: RESULT = new Literal(new Type("bool"), 0, Semantic.getInstance().currentScope); :} | 
   	BOOLEAN_LITERAL_TRUE: l {: RESULT = new Literal(new Type("bool"), 1, Semantic.getInstance().currentScope); :} | 
   	CHARACTER_LITERAL: l {: RESULT = l; :}|
@@ -582,7 +597,7 @@ precedence left NOT, ARRLEFT;
   
   //TODO: adicionar inc dec stmt e short var decl
   simple_stmt ::= simple_stmt_complete SEMICOLON;
-  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
+  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment:a {: RESULT = a; System.out.println(a); :} | inc_dec_stmt | short_var_decl;
   simple_stmt_complete ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
   
   /* IF Statement */
@@ -792,8 +807,6 @@ precedence left NOT, ARRLEFT;
   
   assignment ::= 
   	expression_list:e1 assign_operator:op expression_list:e2 {:
-		if(e1 != null && e2 != null){
-			Semantic.getInstance().checkAssignment(e1, e2, op);
-		}
+		RESULT = new Assignment((ArrayList<Expression>) e1, (ArrayList<Expression>) e2, (String)op);
 	:};
    

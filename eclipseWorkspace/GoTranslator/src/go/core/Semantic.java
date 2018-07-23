@@ -54,6 +54,7 @@ public class Semantic {
 					"byte", 
 					"complex64",
 					"complex128",
+					"float",
 					"error",
 					"float32", 
 					"float64",
