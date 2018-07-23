@@ -132,7 +132,8 @@ terminal ANDEQ, ANDNOTEQ, XOREQ, OREQ; // assignment_operator
 
 terminal java.lang.Number INTEGER_LITERAL;
 terminal java.lang.Number FLOATING_POINT_LITERAL;
-terminal java.lang.Number BOOLEAN_LITERAL;
+terminal java.lang.Boolean BOOLEAN_LITERAL_TRUE;
+terminal java.lang.Boolean BOOLEAN_LITERAL_FALSE;
 terminal java.lang.Number CHARACTER_LITERAL;
 terminal java.lang.Number HEX_LITERAL;
 
@@ -244,7 +245,7 @@ precedence left NOT, ARRLEFT;
   	
   import_declaration ::= IMPORT STRING_LITERAL;
 
-  func_declaration ::= FUNC IDENTIFIER params type_opt func_body;
+  func_declaration ::= FUNC IDENTIFIER:o params type_opt func_body {: Semantic.getInstance().isVarAlreadyDeclared(new Identifier(null, o ,null,Semantic.getInstance().currentScope)); :};
   
   type_opt ::= | type_b | LPAREN identifier_list RPAREN {: :} | IDENTIFIER | QUALIFIED_IDENTIFIER;
  
@@ -394,7 +395,8 @@ precedence left NOT, ARRLEFT;
   literal ::= 
   	INTEGER_LITERAL: l {: RESULT = new Literal(new Type("int"), l, Semantic.getInstance().currentScope); :} | 
   	FLOATING_POINT_LITERAL: l {: RESULT = l; :}| 
-  	BOOLEAN_LITERAL: l {: RESULT = new Literal(new Type("bool"), l, Semantic.getInstance().currentScope); :} | 
+  	BOOLEAN_LITERAL_FALSE: l {: RESULT = new Literal(new Type("bool"), 0, Semantic.getInstance().currentScope); :} | 
+  	BOOLEAN_LITERAL_TRUE: l {: RESULT = new Literal(new Type("bool"), 1, Semantic.getInstance().currentScope); :} | 
   	CHARACTER_LITERAL: l {: RESULT = l; :}|
     HEX_LITERAL : l {: RESULT = l; :} | 
     IMAGINARY_LITERAL: l {: RESULT = l; :}| 
@@ -479,11 +481,12 @@ precedence left NOT, ARRLEFT;
 	}
 
 	else{
-
-		RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
+		if(!o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
+			RESULT = null;
+		else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
 	}
 
- :} | unary_expression:o {: RESULT = o;:} ;
+ :} | unary_expression:o {: RESULT = o; :} ;
  
   
   unary_expression ::= 
@@ -537,7 +540,7 @@ precedence left NOT, ARRLEFT;
 			RESULT = Semantic.getInstance().getIdByName((String) o);
 		:}| 
 	    QUALIFIED_IDENTIFIER : o {: RESULT = o; :}| 
-	    LPAREN expression RPAREN ;
+	    LPAREN expression:o RPAREN {: RESULT = null; :} ;
 	    
 	    
   //conversion ::=		
@@ -617,13 +620,14 @@ precedence left NOT, ARRLEFT;
    		
    var_spec_aux ::=
    		 type: o {: 
+			Semantic.getInstance().checkIfTypeExists((Type) o);
 			RESULT = o; 
 		 :} |
    		 EQ expression_list:o {:
 			RESULT = o;
 		:} |
    		 type:o EQ expression_list:e {:
-				//System.out.println("2 " + e);
+			Semantic.getInstance().checkIfTypeExists((Type) o);
 			if(e == null){
 				RESULT = e;
 			}

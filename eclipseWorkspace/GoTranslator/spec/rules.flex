@@ -103,7 +103,9 @@ imaginary_literal = ({float_literal}|{decimal_literal})i
     "for"                                                       { return symbol(sym.FOR);                                           }
     "import"                                                    { return symbol(sym.IMPORT);                                        }
     "return"                                                    { return symbol(sym.RETURN);                                        }
-    "var"                                                       {  return symbol(sym.VAR);                                           }
+    "var"                                                       { return symbol(sym.VAR);                                           }
+    "true"                                                      { return symbol(sym.BOOLEAN_LITERAL_TRUE);                               }
+    "false"                                                     { return symbol(sym.BOOLEAN_LITERAL_FALSE);                               }
 
     /*OPERATORS AND PUNCTUATION*/
 

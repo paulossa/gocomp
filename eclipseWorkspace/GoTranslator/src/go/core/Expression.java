@@ -103,7 +103,7 @@ public class Expression extends ScopedEntity {
 	
 	public String getCode() {
 		
-
+		if(type.getTypeName().equals("string")) return null;
 		fixTree1();
 		fixTree2();
 		String ans = getCodeAux();
@@ -160,7 +160,20 @@ public class Expression extends ScopedEntity {
 			else if(op.equals("*")) {
 				instrucao = "MUL ";
 			}
-
+			
+			else if(op.equals("||")) {
+				instrucao = "OR ";
+			}
+			
+			else if(op.equals("&&")) {
+				instrucao = "AND ";
+			}
+			
+			else if(op.equals("!")) {
+				instrucao = "MUL ";
+			}
+			
+			
 			String ans = instrucao + reg + ", " + aux + ", " + next + "\n";
 
 			Semantic.finalCode.add(ans);

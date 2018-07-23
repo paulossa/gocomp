@@ -78,6 +78,18 @@ public class Semantic {
 	
 	private static Semantic sAnalysis;
 	
+	
+	public static void checkIfTypeExists(Type t) throws Exception {
+		boolean found = false;
+		for(String type: BASIC_TYPES) {
+			if(t.getTypeName().equals(type)) {
+				found = true;
+			}
+		}
+		if(!found) throw new Exception(lex.curLine + " Semantic error: Type " + t.getTypeName() + " not declared");
+	}
+	
+	
 	public static void checkAssignment(Object expList1, Object expList2, Object op) throws Exception {
 		
 		int size1 = ((ArrayList<Expression>) expList1).size();
@@ -106,40 +118,44 @@ public class Semantic {
 			
 			Identifier id = (Identifier) exp1.getLeft();
 			
+			//ignora
+			if(!exp2.getType().getTypeName().equals("string")) {
 			
-			if(op.equals("="))
-				Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode());
-			
-			else if(op.equals("*=")) {
-				String reg = Register.getNewRegister();
-				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-				Semantic.finalCode.add("MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
-				Register.finishUseReg();
-			}
-			
-			else if(op.equals("-=")) {
-				String reg = Register.getNewRegister();
-				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-				Semantic.finalCode.add("SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
-				Register.finishUseReg();
-			}
-			
-			else if(op.equals("/=")) {
-				String reg = Register.getNewRegister();
-				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-				Semantic.finalCode.add("DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
-				Register.finishUseReg();
-			}
-			
-			else if(op.equals("+=")) {
-				String reg = Register.getNewRegister();
-				Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-				Semantic.finalCode.add("ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-				Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
-				Register.finishUseReg();
+				
+				if(op.equals("="))
+					Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode());
+				
+				else if(op.equals("*=")) {
+					String reg = Register.getNewRegister();
+					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add("MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Register.finishUseReg();
+				}
+				
+				else if(op.equals("-=")) {
+					String reg = Register.getNewRegister();
+					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add("SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Register.finishUseReg();
+				}
+				
+				else if(op.equals("/=")) {
+					String reg = Register.getNewRegister();
+					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add("DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Register.finishUseReg();
+				}
+				
+				else if(op.equals("+=")) {
+					String reg = Register.getNewRegister();
+					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add("ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Register.finishUseReg();
+				}
 			}
 		}
 		
@@ -204,8 +220,10 @@ public class Semantic {
 			
 			idToRegister.put(id.getName(), expReg);
 			
-			finalCode.add("ST " + id.getName() + ", " + expReg + "\n");
-			Register.finishUseReg();
+			if(!e.getType().getTypeName().equals("string")) {
+				finalCode.add("ST " + id.getName() + ", " + expReg + "\n");
+				Register.finishUseReg();
+			}
 		}
 		
 	}
@@ -242,7 +260,7 @@ public class Semantic {
 		
 		if(!var.getTypeName().equals(assigned.getTypeName())){
 			throw new Exception(
-				"Semantic Error: Variable of type " + 
+				lex.curLine + " Semantic Error: Variable of type " + 
 				var.getTypeName() +  
 				" can not be assigned to type " + 
 				assigned.getTypeName()
@@ -258,7 +276,7 @@ public class Semantic {
 		if(left instanceof ValuedEntity && right instanceof Expression) {
 			if(!((ValuedEntity) left).getType().equals(((Expression) right).getType())) {
 				throw new Exception(
-					"Semantic Error: Expression of type " + 
+					lex.curLine + " Semantic Error: Expression of type " + 
 					((ValuedEntity) left).getType() +  
 					" is not compatible with type " + 
 					((Expression) right).getType()
@@ -270,7 +288,7 @@ public class Semantic {
 		if(left instanceof Expression && right instanceof Expression) {
 			if(!((Expression) left).getType().equals(((Expression) right).getType())) {
 				throw new Exception(
-					"Semantic Error: Expression of type " + 
+					lex.curLine + " Semantic Error: Expression of type " + 
 					((Expression) left).getType() +  
 					" is not compatible with type " + 
 					((Expression) right).getType()
@@ -285,7 +303,7 @@ public class Semantic {
 		if(left instanceof ValuedEntity && right instanceof ValuedEntity) {
 			if(!((ValuedEntity) left).getType().equals(((ValuedEntity) right).getType())) {
 				throw new Exception(
-					"Semantic Error: Expression of type " + 
+					lex.curLine + " Semantic Error: Expression of type " + 
 					((ValuedEntity) left).getType() +  
 					" is not compatible with type " + 
 					((ValuedEntity) right).getType()
