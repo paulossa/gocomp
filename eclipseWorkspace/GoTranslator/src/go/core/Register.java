@@ -10,6 +10,10 @@ public class Register {
 		return label + ": ";
 	}
 	
+	public static String peekNextLabel() {
+		return "" +  (label + 8);
+	}
+	
 	public static String getNewRegister() {
 		return "R" + ++nextAvailableRegister;
 	

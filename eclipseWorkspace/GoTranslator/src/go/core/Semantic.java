@@ -23,7 +23,7 @@ public class Semantic {
 		String ans = "100: " + "LD SP, 4000\n";
 		
 		while(!finalCode.isEmpty()) {
-			ans += Register.getLabel() + finalCode.remove();
+			ans += finalCode.remove();
 		}
 		
 		return ans;
@@ -124,37 +124,37 @@ public class Semantic {
 			
 				
 				if(op.equals("="))
-					Semantic.finalCode.add("ST " + id.getName() + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + exp2.getCode() + "\n");
 				
 				else if(op.equals("*=")) {
 					String reg = Register.getNewRegister();
-					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add("MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("-=")) {
 					String reg = Register.getNewRegister();
-					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add("SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("/=")) {
 					String reg = Register.getNewRegister();
-					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add("DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("+=")) {
 					String reg = Register.getNewRegister();
-					Semantic.finalCode.add("LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add("ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
-					Semantic.finalCode.add("ST " + id.getName() + ", " + reg + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 			}
@@ -175,9 +175,7 @@ public class Semantic {
 	
 	
 	public static void isVarAlreadyDeclared(Identifier id) throws Exception {
-//		System.out.println(id);
-//		System.out.println(variaveis);
-//		
+		
 		for(Identifier i: variaveis) {
 			if(i.getName().equals(id.getName()) && (i.getScope() == currentScope || i.getScope() == GLOBAL_SCOPE)) {
 				throw new Exception(lex.curLine + " Semantic error: var " + id + " already declared.");
@@ -217,14 +215,12 @@ public class Semantic {
 
 			declareVar(id, e.getType());
 			
-			String expReg = e.getCode();
+			String expReg = e.getCode().getReturnRegister();
 			
 			idToRegister.put(id.getName(), expReg);
 			
-//			if(!e.getType().getTypeName().equals("string")) {
-				finalCode.add("ST " + id.getName() + ", " + expReg + "\n");
-				Register.finishUseReg();
-//			}
+			finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + expReg + "\n");
+			Register.finishUseReg();
 		}
 		
 	}

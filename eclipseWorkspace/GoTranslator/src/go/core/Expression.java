@@ -6,6 +6,8 @@ public class Expression extends ScopedEntity {
 	private ValuedEntity left;
 	private Expression right;
 	private String op;
+	private boolean hasRelational = false;
+	private String relOp = null;
 	
 	private int count = 0;
 	
@@ -48,7 +50,7 @@ public class Expression extends ScopedEntity {
 				op = right.getOp();
 				right = right.getRight();
 				
-				Semantic.finalCode.add("MUL " + reg + ", " +  thisVal + ", " + nextVal + "\n");
+				Semantic.finalCode.add(Register.getLabel() + "MUL " + reg + ", " +  thisVal + ", " + nextVal + "\n");
 				
 			}
 			
@@ -90,7 +92,7 @@ public class Expression extends ScopedEntity {
 				right = right.getRight();
 				
 				
-				Semantic.finalCode.add("DIV " + reg + ", " +  thisVal + ", " + nextVal + "\n");
+				Semantic.finalCode.add(Register.getLabel() + "DIV " + reg + ", " +  thisVal + ", " + nextVal + "\n");
 				
 			}
 			
@@ -101,7 +103,12 @@ public class Expression extends ScopedEntity {
 		}
 	}
 	
-	public String getCode() {
+	public ExpressionReturn getCode() throws Exception {
+		
+		this.hasRelational = false;
+		this.relOp = null;
+		
+		String returnReg = "";
 		
 		if(type.getTypeName().equals("string")) {
 			String ans = "";
@@ -113,13 +120,53 @@ public class Expression extends ScopedEntity {
 				ans += ((Literal) left).getValue();
 			}
 			
-			return ans;
+			return new ExpressionReturn(ans, null);
 		}
 		
-		fixTree1();
-		fixTree2();
-		String ans = getCodeAux();
-		return ans;
+		String result = checkRelationalOp(this, this);
+		
+		if(result != null) {
+			returnReg += result;
+			return new ExpressionReturn(returnReg, this.relOp);
+		}
+
+		
+		if(!hasRelational) {
+			fixTree1();
+			fixTree2();
+			String ans = getCodeAux();
+			returnReg += ans;			
+		}
+		
+		return new ExpressionReturn(returnReg, null);
+
+	}
+	
+	private String checkRelationalOp(Expression e, Expression initial) throws Exception {
+
+		if(e.op != null && (e.op.equals("==") || e.op.equals(">=") || e.op.equals(">") || e.op.equals("<") || e.op.equals("<=") || e.op.equals("!="))) {
+			
+			String registerRight = e.getRight().getCodeAux();
+			
+			e.setRight(null);
+			
+			this.relOp = e.op;
+			
+			String registerLeft = initial.getCodeAux();
+			
+			String newReg = Register.getNewRegister();
+			
+			Semantic.finalCode.add(Register.getLabel() + "SUB " + newReg + ", " + registerLeft + ", " + registerRight + "\n");
+			
+			hasRelational = true;	
+			return newReg;
+		}
+		
+		else if(e.getRight() != null)
+			return checkRelationalOp(e.getRight(), initial);
+		
+		else return null;
+	
 	}
 	
 	private String getCodeAux() {
@@ -138,6 +185,8 @@ public class Expression extends ScopedEntity {
 		}
 		
 		else {
+			
+			boolean done = false;
 			
 			String aux = "";
 			
@@ -185,8 +234,16 @@ public class Expression extends ScopedEntity {
 				instrucao = "MUL ";
 			}
 			
+//			else if (op.equals("==")) {
+//				done = true;
+//				Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + aux + "\n");
+//				Semantic.finalCode.add(Register.getLabel() + "SUB " + reg + ", " + reg + ", " + next + "\n");
+//				return reg;
+////				System.out.println();
+////				System.out.println();
+//			}
 			
-			String ans = instrucao + reg + ", " + aux + ", " + next + "\n";
+			String ans = Register.getLabel() + instrucao + reg + ", " + aux + ", " + next + "\n";
 
 			Semantic.finalCode.add(ans);
 

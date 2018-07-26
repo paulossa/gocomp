@@ -264,6 +264,7 @@ precedence left NOT, ARRLEFT;
   	 simple_stmt_b:s {: 
 
 		if(s != null){
+
 			ArrayList<Expression> e1 = ((Assignment) s).getExpList1();
 			ArrayList<Expression> e2 = ((Assignment) s).getExpList2();
 			String op = ((Assignment) s).getOp();
@@ -496,7 +497,11 @@ precedence left NOT, ARRLEFT;
 	}
 
 	else{
-		if(!o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
+		//if(o.equals("==")){
+		//	System.out.println(e1);
+		//	System.out.println(e2);
+		//}
+		if(!o.equals("==") && !o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
 			RESULT = null;
 		else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
 	}
@@ -587,6 +592,7 @@ precedence left NOT, ARRLEFT;
 
   /* IF Statement */
   
+
   if_stmt ::= 
   	IF if_head block |
   	IF if_head block else_stmt;
