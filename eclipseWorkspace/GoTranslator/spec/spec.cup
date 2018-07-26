@@ -374,7 +374,17 @@ precedence left NOT, ARRLEFT;
   
   signature ::= params result_opt;
   
-  result ::= type_b | LPAREN identifier_list RPAREN {: :} | IDENTIFIER | QUALIFIED_IDENTIFIER;
+  result ::= type_b | LPAREN identifier_list RPAREN {: :} | IDENTIFIER:o {:
+  
+  	Type t = new Type((String) o);
+  	
+  	Semantic.getInstance().checkIfTypeExists(t);
+  
+  	
+  :}
+  
+  
+  | QUALIFIED_IDENTIFIER;
   
   result_opt ::= result | SEMICOLON;
   
