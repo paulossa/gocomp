@@ -8,8 +8,17 @@ public class Expression extends ScopedEntity {
 	private String op;
 	private boolean hasRelational = false;
 	private String relOp = null;
+	private Expression lexp;
 	
 	private int count = 0;
+	
+	public Expression(ValuedEntity left, String op, int scope) {
+		super(scope);
+		this.type = left.getType();
+		this.left = left;
+		
+		this.op = op;
+	}
 	
 	public Expression(ValuedEntity left, Expression right, String op, int scope) {
 		super(scope);
@@ -18,7 +27,21 @@ public class Expression extends ScopedEntity {
 		this.right = right;
 		this.op = op;
 	}
+	public Expression(ValuedEntity l, ValuedEntity r, String op, int scope) {
+		super(scope);
+		this.type = l.getType();
+		this.left = l; 
+		this.op = op;
+	}
 	
+	public Expression(Expression left, Expression right, String op, int scope) {
+		super(scope);
+		this.type = left.getType();
+		this.lexp = left;
+		this.right = right;
+		this.op = op;
+	}
+
 	private void fixTree2() {
 		if(right != null) {
 //			System.out.println(right);
@@ -256,6 +279,18 @@ public class Expression extends ScopedEntity {
 			
 		}
 		return "FAIL";
+	}
+	public String repr() { 
+		if (left instanceof Identifier) 
+			return ((Identifier) left).getName();
+		else if (left instanceof ValuedEntity)
+			return "#" + left.getValue();
+		return left.toString();
+//		if (left != null && (int) left.getValue() != 0)
+//			return "#" + left.getValue();
+//		else {
+//			return lexp.getCodeAux();
+//		}
 	}
 	
 	//Returns true if expression is deep. i.e.: Two or more expressions nested.

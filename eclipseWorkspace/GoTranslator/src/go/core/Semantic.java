@@ -235,6 +235,12 @@ public class Semantic {
 		}
 	}
 	
+	public static Expression addGteqz(Expression e1, Expression e2) {
+		finalCode.add(Register.getLabel() + "SUB " + Register.getNewRegister() + ", " + e1.repr() + ", " + e2.repr() + "\n");
+		return new Expression(e1, e2, "<=", currentScope);
+		
+	}
+	
 	
 	public static void declareVar(Identifier id, Type varType) {
 //			System.out.println("declaring " + id + " of type " + varType.getTypeName());
@@ -245,10 +251,16 @@ public class Semantic {
 
 	public static Expression getResultingExp(Object o, String op) {
 		if(o instanceof ValuedEntity) {
-			return new Expression((ValuedEntity) o, null, op, currentScope);
+			return new Expression((ValuedEntity) o, op, currentScope);
 		}
 		
 		
+		return null;
+	}
+	public static Expression getResultingExp(Object o1, Object o2, String op) {
+		if (o1 instanceof ValuedEntity && o2 instanceof ValuedEntity) {
+			return new Expression((ValuedEntity) o1, (ValuedEntity) o2, op, currentScope);
+		} 
 		return null;
 	}
 	
@@ -307,7 +319,7 @@ public class Semantic {
 				);
 			}
 			
-			return new Expression(((ValuedEntity) left), new Expression(((ValuedEntity) right), null, null, currentScope), op, currentScope);
+			return new Expression(((ValuedEntity) left), new Expression(((ValuedEntity) right), null, currentScope), op, currentScope);
 		}
 		System.out.println("WARN: Expressão não tratada semanticamente");
 		

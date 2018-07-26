@@ -491,7 +491,12 @@ precedence left NOT, ARRLEFT;
 
   
   expression ::= expression:e1 binary_operator:o expression:e2 {:
-	
+	//System.out.println(e1);
+	//System.out.println(e2);
+	//System.out.println(o);
+	//Semantic.getInstance().finalCode.add("<=" + o);
+		
+	//else { Semantic.getInstance().finalCode.add("<= code"); }
 	if(e1 == null || e2 == null){
 		RESULT = null;
 	}
@@ -501,8 +506,11 @@ precedence left NOT, ARRLEFT;
 		//	System.out.println(e1);
 		//	System.out.println(e2);
 		//}
-		if(!o.equals("==") && !o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
-			RESULT = null;
+		
+		if (o.equals(">=")) {
+			RESULT = Semantic.getInstance().addGteqz((Expression)e1, (Expression)e2);
+		} else if(!o.equals("==") && !o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
+			RESULT = "yeag";
 		else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
 	}
 
@@ -594,16 +602,16 @@ precedence left NOT, ARRLEFT;
   
 
   if_stmt ::= 
-  	IF if_head block |
-  	IF if_head block else_stmt;
+  	IF if_head:h block:b {: /*System.out.println("Olar " + h);*/ :} |
+  	IF if_head:h block:b else_stmt:e {: Semantic.getInstance().finalCode.add("olar " + h);  :} ;
   	
-  if_head ::= simple_stmt_complete SEMICOLON expression | expression;
+  if_head ::= simple_stmt_complete SEMICOLON expression | expression:e {: RESULT = e;:};
   
   else_stmt ::= ELSE if_stmt | ELSE block;
   
   //TODO: adicionar inc dec stmt e short var decl
   simple_stmt ::= simple_stmt_complete SEMICOLON;
-  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment:a {: RESULT = a; System.out.println(a); :} | inc_dec_stmt | short_var_decl;
+  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment:a {: RESULT = a; :} | inc_dec_stmt | short_var_decl;
   simple_stmt_complete ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
   
   /* IF Statement */

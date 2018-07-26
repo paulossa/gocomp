@@ -2,15 +2,20 @@ package main
 import "fmt"
 
 // var x int = 3
-var w int = 1 / 2 * 3 / 5
+
 
 func main() {
-    // var a,b,semCorpo = "kkk", "kk", 2
+  var x = 0
+  if x >= 0 {
+    var y = 1
+  } else {
+    var z = 2
+  }
     // var c int = w * 3
     // var x,y int = 2, 3 + 10 + 15 * 7 - 10
 }
 
-func x() {
+func hw() {
     // var a,b,semCorpo = "a", "b", "c"
     // var y int = c + a
     // var y string = "kkk"
@@ -219,7 +224,7 @@ func x() {
 
 //     if x := f(); x < (y >> 3) {
 //         // return x
-//     } 
+//     }
 //     else if kkk {
 
 //     }
@@ -231,7 +236,7 @@ func x() {
 //     // if {
 //         //errado
 //     // }
-    	
+
 
 //     yo = calc
 //     (1+3) >> 3
