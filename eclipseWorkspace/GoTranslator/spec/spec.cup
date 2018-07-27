@@ -4,6 +4,7 @@
 package go.core;
 import java_cup.runtime.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 init with {: Semantic.parser = this;              :};
 /* Parser code to change the way the parser reports errors (include
@@ -237,7 +238,14 @@ precedence left NOT, ARRLEFT;
   
   top_level_decl ::= declaration | func_declaration | method_decl;
   
-  declaration ::=  const_decl | var_decl | type_decl;
+  declaration ::=  
+  	const_decl | 
+  	var_decl:o {:
+
+		RESULT = o;
+
+	:} | 
+  	type_decl;
 
   package_declaration_opt ::= | PACKAGE package_name;
   
@@ -253,32 +261,38 @@ precedence left NOT, ARRLEFT;
   
   block_begin ::= LBRACE {: Semantic.getInstance().currentScope += 1; :};
   
-  block ::= block_begin Statements block_end {: :};
+  block ::= block_begin Statements:s block_end {: RESULT = s; :};
   
   block_end ::= RBRACE {: :};
   
-  Statements ::= | Statement Statements;
+  Statements ::= | Statement:st Statements:sts {: 
+	if(sts != null) {
+		if(st != null) {
+
+			RESULT =  Math.min((int)Integer.parseInt("" + st), (int)Integer.parseInt("" + sts));
+		}	
+		else RESULT = (int)Integer.parseInt("" + sts);
+	}	
+
+	else if (st != null){
+		RESULT = (int)Integer.parseInt("" + st);
+	}
+
+  :};
   
   Statement ::= 
-  	declaration | label_stmt |
+  	declaration:d {: 
+		RESULT = d;
+	:} | 
+	label_stmt |
   	 simple_stmt_b:s {: 
 
-		if(s != null){
-
-			ArrayList<Expression> e1 = ((Assignment) s).getExpList1();
-			ArrayList<Expression> e2 = ((Assignment) s).getExpList2();
-			String op = ((Assignment) s).getOp();
-
-		
-			if(e1 != null && e2 != null){
-				Semantic.getInstance().checkAssignment(e1, e2, op);
-			}
-		}
+		RESULT = s;
 
 	:} | 
   	 goto_stmt | go_stmt | 
   	defer_stmt | fall_stmt | block | return_stmt | select_stmt |
-  	continue_stmt | break_stmt | if_stmt | for_stmt | switch_stmt;
+  	continue_stmt | break_stmt | if_stmt:o {: RESULT = o; :} | for_stmt | switch_stmt;
   
   return_stmt ::= RETURN SEMICOLON | RETURN expression_list;
   
@@ -507,13 +521,9 @@ precedence left NOT, ARRLEFT;
 	}
 
 	else{
-		//if(o.equals("==")){
-		//	System.out.println(e1);
-		//	System.out.println(e2);
-		//}
-		if(!o.equals("==") && !o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
-			RESULT = null;
-		else RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
+		//if(!o.equals("==") && !o.equals("==") && !o.equals(">") && !o.equals(">=") && !o.equals("<") && !o.equals("<=") && !o.equals("+") && !o.equals("-") && !o.equals("*") && !o.equals("/") && !o.equals("||") && !o.equals("&&") && !o.equals("!"))
+		//	RESULT = null;
+		RESULT = Semantic.getInstance().checkExpressionTypes(e1, e2, (String) o);
 	}
 
  :} | unary_expression:o {: RESULT = o; :} ;
@@ -604,16 +614,197 @@ precedence left NOT, ARRLEFT;
   
 
   if_stmt ::= 
-  	IF if_head block |
-  	IF if_head block else_stmt;
+  	IF if_head:e block:b {:
+		if(e != null) {
+
+		int myLabel = Register.curLabel();
+		ArrayList l = new ArrayList(Semantic.getInstance().finalCode);
+		ArrayList ifBlock = new ArrayList<String>();
+		ArrayList toRemove = new ArrayList<Integer>();
+
+		boolean can = false;
+
+		for(int i = 0 ; i < l .size() ; i++){
+			String code = (String)l.get(i);
+
+			if(can || code.substring(0, 3).equals("" + b)){
+				can = true;
+				ifBlock.add(code);
+				toRemove.add(i);
+			}
+		
+		}
+
+		for(int i = toRemove.size() - 1 ; i >= 0 ; i--){
+			l.remove((int) toRemove.get(i));
+		}
+
+		Semantic.getInstance().finalCode = new LinkedList<>(l);
+
+		ExpressionReturn er = ((Expression) e).getCode();
+		String reg = er.getReturnRegister();
+		String op = er.getOperator();
+
+		// x >= 3 x - 3
+
+		if(op.equals("==")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BNEQZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals("!=")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BEQZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals(">=")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BLTZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals(">")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BLETZ " + reg + ", " + afterLabel + "\n");
+
+		}
+
+		if(op.equals("<=")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BGTZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals("<")){
+			int label = Register.curLabel() + 8;
+			int afterLabel = label + 8;
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BGETZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		for(Object s: ifBlock){
+			Semantic.getInstance().finalCode.add((String)s);
+		}
+
+		Semantic.getInstance().reorderLabels();
+
+		RESULT = b;
+		}
+
+	:}
+  	| IF if_head:e block:b else_stmt:el {:
+
+		if(e != null) {
+
+		int myLabel = Register.curLabel();
+		ArrayList l = new ArrayList(Semantic.getInstance().finalCode);
+		ArrayList ifBlock = new ArrayList<String>();
+		ArrayList elseBlock = new ArrayList<String>();
+		ArrayList toRemove = new ArrayList<Integer>();
+
+		boolean can = false;
+		boolean can2 = false;
+
+		for(int i = 0 ; i < l .size() ; i++){
+			String code = (String)l.get(i);
+
+			if(can2 || code.substring(0,3).equals("" + el)){
+				can = false;
+				can2 = true;
+				elseBlock.add(code);
+				toRemove.add(i);
+			}
+
+			if(can || code.substring(0, 3).equals("" + b)){
+				can = true;
+				ifBlock.add(code);
+				toRemove.add(i);
+			}
+		
+		}
+
+		for(int i = toRemove.size() - 1 ; i >= 0 ; i--){
+			l.remove((int) toRemove.get(i));
+		}
+
+		Semantic.getInstance().finalCode = new LinkedList<>(l);
+
+		ExpressionReturn er = ((Expression) e).getCode();
+		String reg = er.getReturnRegister();
+		String op = er.getOperator();
+
+		// x >= 3 x - 3
+
+		if(op.equals("==")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BNEQZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals("!=")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BEQZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals(">=")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BLTZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals(">")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BLETZ " + reg + ", " + afterLabel + "\n");
+
+		}
+
+		if(op.equals("<=")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BGTZ " + reg + ", " + afterLabel + "\n");
+		}
+
+		if(op.equals("<")){
+			int label = Register.curLabel();
+			int afterLabel = label + 24 - ((elseBlock.size() > 0)? elseBlock.size() * 8 : 8);
+			Semantic.getInstance().finalCode.add(Register.getLabel() + "BGETZ " + reg + ", " + afterLabel + "\n");
+		}
+
+
+		for(Object s: ifBlock){
+			Semantic.getInstance().finalCode.add((String)s);
+		}
+
+		Semantic.getInstance().finalCode.add(Register.getLabel() + "BR " + (Register.curLabel() + 8) + "\n");
+
+		for(Object s: elseBlock){
+			Semantic.getInstance().finalCode.add((String)s);
+		}
+
+		Semantic.getInstance().reorderLabels();
+
+		RESULT = b;
+	}
+
+	:};
   	
-  if_head ::= simple_stmt_complete SEMICOLON expression | expression;
+  if_head ::= 
+  	simple_stmt_complete SEMICOLON expression:e {: 
+		RESULT = e;
+	:}
+  	| expression:e {: 
+		RESULT = e;
+	:};
   
-  else_stmt ::= ELSE if_stmt | ELSE block;
+  else_stmt ::= ELSE if_stmt:i {: RESULT = i; :} | ELSE block:b {: RESULT = b; :};
   
   //TODO: adicionar inc dec stmt e short var decl
   simple_stmt ::= simple_stmt_complete SEMICOLON;
-  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment:a {: RESULT = a; System.out.println(a); :} | inc_dec_stmt | short_var_decl;
+  simple_stmt_b ::=  expression | expression ARRLEFT expression | assignment:a {: RESULT = a; :} | inc_dec_stmt | short_var_decl;
   simple_stmt_complete ::=  | expression | expression ARRLEFT expression | assignment | inc_dec_stmt | short_var_decl;
   
   /* IF Statement */
@@ -639,13 +830,13 @@ precedence left NOT, ARRLEFT;
 			}
 
 			else if(v instanceof Type){
+				RESULT = Register.curLabel() + 8; 
 				Semantic.getInstance().declareIdList((Type) v, (ArrayList<Identifier>) o);
-				RESULT = v; 
 			} 
 			else if (v instanceof ArrayList<?>){
 				//System.out.println("1 " + v);
+				RESULT = Register.curLabel() + 8; 
 				Semantic.getInstance().declareExpIdList((ArrayList<Expression>) v, (ArrayList<Identifier>) o);
-				RESULT = v;
 			}
 		:};
    		
@@ -823,6 +1014,11 @@ precedence left NOT, ARRLEFT;
   
   assignment ::= 
   	expression_list:e1 assign_operator:op expression_list:e2 {:
-		RESULT = new Assignment((ArrayList<Expression>) e1, (ArrayList<Expression>) e2, (String)op);
+		
+		if(e1 != null && e2 != null){
+			RESULT = Semantic.getInstance().checkAssignment(e1, e2, op);
+		}
+		else RESULT = null;
+		
 	:};
    

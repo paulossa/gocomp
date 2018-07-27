@@ -26,7 +26,7 @@ public class Semantic {
 			ans += finalCode.remove();
 		}
 		
-		return ans;
+		return ans + Register.getLabel() + "halt\n";
 	}
 	
 	
@@ -50,6 +50,7 @@ public class Semantic {
 
 	private static final String[]
 			BASIC_TYPES = {
+					"function",
 					"bool", 
 					"byte", 
 					"complex64",
@@ -75,9 +76,26 @@ public class Semantic {
 	
 	private int sec = 0;
 	public static ArrayList<Identifier> variaveis = new ArrayList<Identifier>();
+	
 	public static HashMap<String, String> idToRegister = new HashMap<String, String> ();
 	
 	private static Semantic sAnalysis;
+	
+	
+	public static void reorderLabels() { 
+
+		ArrayList l = new ArrayList(Semantic.getInstance().finalCode);
+		int startLabel = 108;
+		
+		for(int i = 0 ; i < l.size() ; i++) {
+			
+			l.set(i, startLabel + ((String) l.get(i)).substring(3));
+			startLabel += 8;
+		}
+		
+		finalCode = new LinkedList<>(l);
+		
+	}
 	
 	
 	public static void checkIfTypeExists(Type t) throws Exception {
@@ -91,8 +109,9 @@ public class Semantic {
 	}
 	
 	
-	public static void checkAssignment(Object expList1, Object expList2, Object op) throws Exception {
+	public static String checkAssignment(Object expList1, Object expList2, Object op) throws Exception {
 		
+		int lastLabel = 0;
 		int size1 = ((ArrayList<Expression>) expList1).size();
 		int size2 = ((ArrayList<Expression>) expList2).size();
 		
@@ -122,43 +141,54 @@ public class Semantic {
 			//ignora
 			if(!exp2.getType().getTypeName().equals("string")) {
 			
+				int beginReg = Register.curLabel() + 8;
 				
-				if(op.equals("="))
-					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + exp2.getCode() + "\n");
-				
+				if(op.equals("=")) {
+					ExpressionReturn er = exp2.getCode();
+					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + er.getReturnRegister() + "\n");
+				}
 				else if(op.equals("*=")) {
+					ExpressionReturn er = exp2.getCode();
 					String reg = Register.getNewRegister();
 					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add(Register.getLabel() + "MULT "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "MULT "  + reg + ", " + reg + ", " + er.getReturnRegister() + "\n");
 					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("-=")) {
+					ExpressionReturn er = exp2.getCode();
 					String reg = Register.getNewRegister();
 					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add(Register.getLabel() + "SUB " + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "SUB " + reg + ", " + reg + ", " + er.getReturnRegister() + "\n");
 					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("/=")) {
+					ExpressionReturn er = exp2.getCode();
 					String reg = Register.getNewRegister();
 					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add(Register.getLabel() + "DIV "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "DIV "  + reg + ", " + reg + ", " + er.getReturnRegister() + "\n");
 					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
 				
 				else if(op.equals("+=")) {
+					ExpressionReturn er = exp2.getCode();
 					String reg = Register.getNewRegister();
 					Semantic.finalCode.add(Register.getLabel() + "LD " + reg + ", " + id.getName() + "\n");
-					Semantic.finalCode.add(Register.getLabel() + "ADD "  + reg + ", " + reg + ", " + exp2.getCode() + "\n");
+					Semantic.finalCode.add(Register.getLabel() + "ADD "  + reg + ", " + reg + ", " + er.getReturnRegister() + "\n");
 					Semantic.finalCode.add(Register.getLabel() + "ST " + id.getName() + ", " + reg + "\n");
 					Register.finishUseReg();
 				}
+				
+				return ""+beginReg;
+				
 			}
 		}
+		
+		return null;
 		
 	}
 	
@@ -187,7 +217,7 @@ public class Semantic {
 	
 	public static Identifier getIdByName(String id) throws Exception {
 		for(Identifier i: variaveis) {
-			if(i.getName().equals(id) && (i.getScope() == currentScope || i.getScope() == GLOBAL_SCOPE)) {
+			if(i.getName().equals(id) && (i.getScope() <= currentScope || i.getScope() == GLOBAL_SCOPE)) {
 				return i;
 			}
 		}
@@ -210,7 +240,6 @@ public class Semantic {
 			Identifier id = o.get(i);		
 			id.setType(e.getType());
 			
-			
 			isVarAlreadyDeclared(id);
 
 			declareVar(id, e.getType());
@@ -231,7 +260,27 @@ public class Semantic {
 			Identifier id = ar.get(i);
 			id.setType(t);
 			isVarAlreadyDeclared(id);
+
 			declareVar(id, t);
+			
+			String reg = Register.getLabel();
+			
+			idToRegister.put(id.getName(), reg);
+			
+			if(id.getType().getTypeName().equals("int"))
+				finalCode.add(reg + "ST " + id.getName() + ", #0\n");
+			
+			else if(id.getType().getTypeName().equals("float"))
+				finalCode.add(reg + "ST " + id.getName() + ", #0.0\n");
+			
+			else if(id.getType().getTypeName().equals("string"))
+				finalCode.add(reg + "ST " + id.getName() + ", \"\"\n");
+			
+			else if(id.getType().getTypeName().equals("bool"))
+				finalCode.add(reg + "ST " + id.getName() + ", #0\n");
+			
+			
+			Register.finishUseReg();
 		}
 	}
 	
@@ -243,8 +292,44 @@ public class Semantic {
 	}
 	
 
-	public static Expression getResultingExp(Object o, String op) {
+	public static Expression getResultingExp(Object o, String op) throws Exception {
+
+		if(o instanceof Expression) {
+			
+			if(op != null && (op.equals("<-") || op.equals("*") || op.equals("&") || op.equals("<-") || op.equals("!") ) ) {
+				return null;
+			}
+			
+			if(op != null && op.equals("-")) {
+				if (  ((Expression) o).getType().getTypeName().equals("int")) {
+					((Expression) o).getLeft().setValue((int)((Expression) o).getLeft().getValue() * -1);
+				}
+				
+				else if (  ((Expression) o).getType().getTypeName().equals("float")) {
+					((Expression) o).getLeft().setValue((float)((Expression) o).getLeft().getValue() * -1);
+				}
+				
+				else throw new Exception(lex.curLine + " Semantic error: Invalid expression.");
+
+			}
+			
+			else if (op != null && op.equals("+")) {
+				if (  !((Expression) o).getType().getTypeName().equals("int") &&   !((Expression) o).getType().getTypeName().equals("float") ) {
+					throw new Exception(lex.curLine + " Semantic error: Invalid expression.");
+				}
+			}
+			
+			else if (op != null && op.equals("^")) {
+				if (  !((Expression) o).getType().getTypeName().equals("int")  ) {
+					throw new Exception(lex.curLine + " Semantic error: Invalid expression.");
+				} else ((Expression) o).getLeft().setValue( ( (int)((Expression) o).getLeft().getValue() + 1 ) * -1 );
+			}
+			
+			return (Expression)o;
+		}
+		
 		if(o instanceof ValuedEntity) {
+			
 			return new Expression((ValuedEntity) o, null, op, currentScope);
 		}
 		
@@ -321,6 +406,12 @@ public class Semantic {
 	}
 	
 	private Semantic() {
+		String[] predef = {"len", "append", "cap", "close", "complex","copy", "delete", "imag", "make", "new", "panic", "print", "println", "real", "recover"};
+		
+		for(String s: predef) {
+			Identifier id = new Identifier(new Type("function"), s, null, GLOBAL_SCOPE);
+			variaveis.add(id);
+		}
 //		scopeStack = new Stack<ScopedEntity>();
 //		cProgram = new Program();
 	}

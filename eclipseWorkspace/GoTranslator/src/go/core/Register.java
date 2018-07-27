@@ -14,13 +14,17 @@ public class Register {
 		return "" +  (label + 8);
 	}
 	
+	public static int curLabel() {
+		return label;
+	}
+	
 	public static String getNewRegister() {
 		return "R" + ++nextAvailableRegister;
 	
 	}
 	
 	public static void finishUseReg() {
-		nextAvailableRegister = -1;
+		//nextAvailableRegister = -1;
 	}
 
 }
