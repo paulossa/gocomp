@@ -230,6 +230,10 @@ public class Expression extends ScopedEntity {
 				instrucao = "AND ";
 			}
 			
+			else if(op.equals("%")) {
+				instrucao = "MOD ";
+			}
+			
 			else if(op.equals("!")) {
 				instrucao = "MUL ";
 			}

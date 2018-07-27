@@ -296,11 +296,24 @@ public class Semantic {
 
 		if(o instanceof Expression) {
 			
-			if(op != null && (op.equals("<-") || op.equals("*") || op.equals("&") || op.equals("<-") || op.equals("!") ) ) {
+			if(op != null && (op.equals("<-") || op.equals("*") || op.equals("&") || op.equals("<-") ) ) {
 				return null;
 			}
 			
-			if(op != null && op.equals("-")) {
+			if(op != null && op.equals("!")) {
+				if (  ((Expression) o).getType().getTypeName().equals("bool")) {
+					System.out.println(o);
+					int val = (int) ((Expression) o).getLeft().getValue();
+					((Expression) o).getLeft().setValue((val == 1)? 0 : 1);
+				}
+				
+				else throw new Exception(lex.curLine + " Semantic error: Invalid expression.");
+
+			}
+			
+			
+			
+			else if(op != null && op.equals("-")) {
 				if (  ((Expression) o).getType().getTypeName().equals("int")) {
 					((Expression) o).getLeft().setValue((int)((Expression) o).getLeft().getValue() * -1);
 				}
