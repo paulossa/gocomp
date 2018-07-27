@@ -29,8 +29,3 @@ func main(argc int, argv string) int {
 	return 1
 }
 
-func x() func() d {
-	return func() int {
-		return 1
-	}
-}

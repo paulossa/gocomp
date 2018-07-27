@@ -1,6 +1,0 @@
-# Mantém arquivos desnecessários fora do github.
-Lexer.java~
-Lexer.java
-parser.java
-sym.java
-*.class
